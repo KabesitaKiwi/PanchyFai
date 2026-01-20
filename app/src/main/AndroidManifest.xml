@@ -13,11 +13,19 @@
         android:theme="@style/Theme.Panchify">
         <activity
             android:name=".vistas.Login"
-            android:exported="false" />
-        <activity
-            android:name=".ui.login.LoginActivity"
-            android:exported="false"
-            android:label="@string/title_activity_login" />
+            android:exported="true"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="callback"
+                    android:scheme="panchify" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".vistas.Home"
             android:exported="false" />
