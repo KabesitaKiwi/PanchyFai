@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/fondo_principal"
+    android:padding="20dp"
+    tools:context=".vistas.Stats">
+
+    <!-- Title -->
+
+    <!-- Tabs (Artists, Songs, etc.) -->
+    <TextView
+        android:id="@+id/titleStats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Canciones"
+        android:textColor="@color/spotify_green"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/titleStats"
+        android:layout_marginTop="16dp"
+        app:tabMode="scrollable"
+        app:tabGravity="fill"
+        android:background="@android:color/transparent">
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Canciones"/>
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Artistas"/>
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Álbumes"/>
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Género"/>
+    </com.google.android.material.tabs.TabLayout>
+
+    <!-- Big List Placeholder -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerStats"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
+        android:background="#05000000"
+        app:layout_constraintTop_toBottomOf="@id/tabLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/timeSelector"/>
+
+    <!-- Time Selector at Bottom -->
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/timeSelector"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:singleSelection="true"
+        app:selectionRequired="true"
+        app:checkedButton="@id/btn4Weeks"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="8dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn4Weeks"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="4 semanas"
+            android:textColor="@color/selector_chip_text_color"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn6Weeks"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="6 semanas"
+            android:textColor="@color/selector_chip_text_color"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn1Year"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1 año"
+            android:textColor="@color/selector_chip_text_color"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+            
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
