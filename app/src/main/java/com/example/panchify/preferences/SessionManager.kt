@@ -9,11 +9,28 @@ class SessionManager(context: Context) {
         Context.MODE_PRIVATE
     )
 
-    fun isLoggedIn(): Boolean {
-        return prefs.getBoolean("is_logged_in", false)
+    fun saveToken(
+        accessToken: String,
+        refreshToken: String?,
+        expiresIn: Int
+    ) {
+        val expirationTime = System.currentTimeMillis() + (expiresIn * 1000)
+
+        prefs.edit()
+            .putString("access_token", accessToken)
+            .putString("refresh_token", refreshToken)
+            .putLong("token_expiration", expirationTime)
+            .putBoolean("is_logged_in", true)
+            .apply()
     }
 
-    fun setLoggedIn(value: Boolean) {
-        prefs.edit().putBoolean("is_logged_in", value).apply()
+    fun getAccessToken(): String? {
+        return prefs.getString("access_token", null)
+    }
+
+    fun isTokenExpired(): Boolean {
+        val expiration = prefs.getLong("token_expiration", 0)
+        return System.currentTimeMillis() > expiration
     }
 }
+
