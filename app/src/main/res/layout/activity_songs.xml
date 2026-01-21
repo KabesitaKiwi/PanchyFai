@@ -9,9 +9,6 @@
     android:background="@color/fondo_principal"
     tools:context=".vistas.Stats">
 
-    <!-- Title -->
-
-    <!-- Title -->
     <TextView
         android:id="@+id/titleStats"
         android:layout_width="wrap_content"
@@ -26,7 +23,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabLayout"
+        android:id="@+id/seleccionadorCanciones"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/titleStats"
@@ -38,7 +35,6 @@
         app:tabGravity="fill"
         android:background="@android:color/transparent">
         
-        <!-- Tabs content preserved -->
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -57,28 +53,26 @@
             android:text="Género"/>
     </com.google.android.material.tabs.TabLayout>
 
-    <!-- Big List Placeholder -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerStats"
+        android:id="@+id/listaCanciones"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="16dp"
         android:layout_marginHorizontal="32dp"
         android:background="#05000000"
-        app:layout_constraintTop_toBottomOf="@id/tabLayout"
+        app:layout_constraintTop_toBottomOf="@id/seleccionadorCanciones"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/timeSelector"/>
 
-    <!-- Time Selector at Bottom -->
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/timeSelector"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:singleSelection="true"
         app:selectionRequired="true"
-        app:checkedButton="@id/btn4Weeks"
+        app:checkedButton="@id/boton4SemanasCanciones"
         app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -86,7 +80,7 @@
         android:layout_marginHorizontal="32dp">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn4Weeks"
+            android:id="@+id/boton4SemanasCanciones"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="4 semanas"
@@ -94,7 +88,7 @@
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn6Weeks"
+            android:id="@+id/boton6mesesCanciones"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="6 semanas"
@@ -102,7 +96,7 @@
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn1Year"
+            android:id="@+id/boton1anoCanciones"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="1 año"

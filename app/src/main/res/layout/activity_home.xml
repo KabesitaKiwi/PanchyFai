@@ -9,7 +9,6 @@
     android:background="@color/fondo_principal"
     tools:context=".vistas.Home">
 
-    <!-- Scroll Container for the whole page -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -25,7 +24,6 @@
             android:paddingTop="24dp"
             android:paddingBottom="100dp">
 
-            <!-- Title -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -35,7 +33,6 @@
                 android:textSize="28sp"
                 android:textStyle="bold" />
 
-            <!-- Now Playing Section -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -58,15 +55,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
-                    
-                    <!-- Placeholder Image (Empty box as requested) -->
+
                     <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
                         android:background="#E0E0E0"
                         android:contentDescription="Album Cover"
                         android:scaleType="centerCrop"/>
-                    
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -92,7 +88,6 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Carousel Section -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -113,7 +108,6 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                    <!-- Card 1: Artistas -->
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="140dp"
                         android:layout_height="100dp"
@@ -121,16 +115,17 @@
                         app:cardElevation="4dp"
                         android:layout_marginEnd="12dp"
                         app:cardBackgroundColor="#F3F4F6">
+
                         <TextView
+                            android:id="@+id/cartaArtista"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
+                            android:gravity="center"
                             android:text="Artistas"
-                            android:gravity="center"
-                            android:textStyle="bold"
-                            android:textColor="#111111"/>
+                            android:textColor="#111111"
+                            android:textStyle="bold" />
                     </com.google.android.material.card.MaterialCardView>
 
-                    <!-- Card 2: Canciones -->
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="140dp"
                         android:layout_height="100dp"
@@ -138,16 +133,17 @@
                         app:cardElevation="4dp"
                         android:layout_marginEnd="12dp"
                         app:cardBackgroundColor="#F3F4F6">
+
                         <TextView
+                            android:id="@+id/cartaCanciones"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
+                            android:gravity="center"
                             android:text="Canciones"
-                            android:gravity="center"
-                            android:textStyle="bold"
-                            android:textColor="#111111"/>
+                            android:textColor="#111111"
+                            android:textStyle="bold" />
                     </com.google.android.material.card.MaterialCardView>
 
-                    <!-- Card 3: Genero -->
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="140dp"
                         android:layout_height="100dp"
@@ -155,35 +151,37 @@
                         app:cardElevation="4dp"
                         android:layout_marginEnd="12dp"
                         app:cardBackgroundColor="#F3F4F6">
+
                         <TextView
+                            android:id="@+id/cartaGenero"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:text="Género"
                             android:gravity="center"
-                            android:textStyle="bold"
-                            android:textColor="#111111"/>
+                            android:text="Género"
+                            android:textColor="#111111"
+                            android:textStyle="bold" />
                     </com.google.android.material.card.MaterialCardView>
 
-                    <!-- Card 4: Playlists -->
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="140dp"
                         android:layout_height="100dp"
                         app:cardCornerRadius="16dp"
                         app:cardElevation="4dp"
                         app:cardBackgroundColor="#F3F4F6">
+
                         <TextView
+                            android:id="@+id/cartaPlaylists"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:text="Playlists"
                             android:gravity="center"
-                            android:textStyle="bold"
-                            android:textColor="#111111"/>
+                            android:text="Playlists"
+                            android:textColor="#111111"
+                            android:textStyle="bold" />
                     </com.google.android.material.card.MaterialCardView>
 
                 </LinearLayout>
             </HorizontalScrollView>
 
-            <!-- Recently Played Section -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -192,8 +190,7 @@
                 android:textColor="@color/spotify_green"
                 android:textSize="18sp"
                 android:textStyle="bold" />
-            
-            <!-- Dummy List Item 1 -->
+
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -206,12 +203,12 @@
                     android:orientation="horizontal"
                     android:padding="12dp"
                     android:gravity="center_vertical">
-                    
+
                     <View
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:background="#E5E7EB"/>
-                    
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -233,7 +230,6 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Dummy List Item 2 -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -272,8 +268,7 @@
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
-            
-             <!-- Dummy List Item 3 -->
+
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -10,7 +10,6 @@
     android:padding="20dp"
     tools:context=".vistas.Login">
 
-    <!-- CARD central -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardLogin"
         android:layout_width="0dp"
@@ -36,7 +35,6 @@
             android:layout_height="wrap_content"
             android:padding="22dp">
 
-            <!-- Logo principal -->
             <ImageView
                 android:id="@+id/imgLogoApp"
                 android:layout_width="140dp"
@@ -49,7 +47,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginTop="6dp" />
 
-            <!-- Título -->
             <TextView
                 android:id="@+id/txtTitulo"
                 android:layout_width="0dp"
@@ -64,7 +61,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginTop="14dp" />
 
-            <!-- Eslogan -->
             <TextView
                 android:id="@+id/txtEslogan"
                 android:layout_width="0dp"
@@ -79,7 +75,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginTop="6dp" />
 
-            <!-- Botón iniciar sesión (Material) -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLogin"
                 android:layout_width="0dp"
@@ -99,7 +94,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginTop="22dp" />
 
-            <!-- Texto informativo -->
             <TextView
                 android:id="@+id/txtInfoSpotify"
                 android:layout_width="0dp"
@@ -113,7 +107,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginTop="10dp" />
 
-            <!-- Separador suave -->
             <View
                 android:id="@+id/divider"
                 android:layout_width="0dp"
@@ -124,7 +117,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginTop="18dp" />
 
-            <!-- Texto extra / ayuda -->
             <TextView
                 android:id="@+id/txtAyuda"
                 android:layout_width="0dp"
@@ -141,7 +133,6 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Barra inferior -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bottomBar"
         android:layout_width="0dp"
@@ -151,7 +142,6 @@
         app:layout_constraintEnd_toEndOf="parent">
 
 
-        <!-- Logo Spotify inferior derecho -->
         <ImageView
             android:id="@+id/imgLogoSpotify"
             android:layout_width="120dp"

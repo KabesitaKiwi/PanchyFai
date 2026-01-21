@@ -21,7 +21,6 @@
             android:paddingTop="24dp"
             android:paddingBottom="100dp">
 
-            <!-- Title -->
             <TextView
                 android:id="@+id/txtTitle"
                 android:layout_width="wrap_content"
@@ -33,7 +32,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <!-- 2x2 Grid -->
             <GridLayout
                 android:id="@+id/gridStats"
                 android:layout_width="match_parent"
@@ -46,7 +44,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
 
-                <!-- Card 1: Minutes -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="140dp"
@@ -77,7 +74,6 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Card 2: Hours -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="140dp"
@@ -108,7 +104,6 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Card 3: Artists -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="140dp"
@@ -139,7 +134,6 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Card 4: Songs -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="140dp"
@@ -171,7 +165,6 @@
                 </com.google.android.material.card.MaterialCardView>
             </GridLayout>
 
-            <!-- Genre Stats Card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardGenres"
                 android:layout_width="match_parent"
@@ -196,7 +189,6 @@
                         android:textColor="#111111"
                         android:layout_marginBottom="12dp"/>
 
-                    <!-- Genre 1 -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -227,7 +219,6 @@
                             android:layout_marginTop="4dp"/>
                     </LinearLayout>
 
-                    <!-- Genre 2 -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -258,7 +249,6 @@
                             android:layout_marginTop="4dp"/>
                     </LinearLayout>
 
-                    <!-- Genre 3 -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -290,7 +280,6 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Vibes Title -->
             <TextView
                 android:id="@+id/txtVibes"
                 android:layout_width="wrap_content"
@@ -304,7 +293,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/cardGenres" />
 
-            <!-- Carousel -->
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -319,7 +307,6 @@
                     android:paddingStart="8dp"
                     android:paddingEnd="8dp">
 
-                    <!-- Card 1 -->
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="140dp"
                         android:layout_height="160dp"
@@ -349,7 +336,6 @@
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
-                    <!-- Card 2 -->
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="140dp"
                         android:layout_height="160dp"
@@ -379,7 +365,6 @@
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
-                    <!-- Card 3 -->
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="140dp"
                         android:layout_height="160dp"
@@ -409,7 +394,6 @@
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
-                    <!-- Card 4 -->
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="140dp"
                         android:layout_height="160dp"
@@ -439,7 +423,6 @@
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
-                    <!-- Card 5 -->
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="140dp"
                         android:layout_height="160dp"
@@ -469,7 +452,6 @@
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
-                    <!-- Card 6 -->
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="140dp"
                         android:layout_height="160dp"
@@ -502,7 +484,6 @@
                 </LinearLayout>
             </HorizontalScrollView>
 
-            <!-- Explicit Spacer (Invisible "Card") -->
             <Space
                 android:layout_width="match_parent"
                 android:layout_height="120dp"
@@ -520,7 +501,7 @@
         android:background="@color/fondo_principal"
         android:elevation="16dp"
         android:padding="16dp"
-        app:checkedButton="@id/chip4Weeks"
+        app:checkedButton="@id/boton4semanasStats"
         app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -528,7 +509,7 @@
         app:singleSelection="true">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/chip4Weeks"
+            android:id="@+id/boton4semanasStats"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -536,7 +517,7 @@
             android:textColor="@color/selector_chip_text_color" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/chip6Months"
+            android:id="@+id/boton6mesesStats"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -544,7 +525,7 @@
             android:textColor="@color/selector_chip_text_color" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/chipLifetime"
+            android:id="@+id/botonSiempreStats"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

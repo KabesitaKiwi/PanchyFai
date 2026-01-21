@@ -9,7 +9,6 @@
     android:background="@color/fondo_principal"
     tools:context=".vistas.Comments">
 
-    <!-- Header -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/headerComments"
         android:layout_width="match_parent"
@@ -43,9 +42,8 @@
             app:layout_constraintStart_toStartOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Comments List -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerComments"
+        android:id="@+id/listaComentarios"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:padding="8dp"
@@ -56,7 +54,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Input Area -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/inputArea"
         android:layout_width="match_parent"
@@ -87,11 +84,12 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/campoComentarios"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Escribe un comentario..."
-                android:textSize="14sp"
-                android:paddingStart="20dp"/>
+                android:paddingStart="20dp"
+                android:textSize="14sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton

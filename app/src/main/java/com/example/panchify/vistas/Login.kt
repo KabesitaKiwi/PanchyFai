@@ -33,7 +33,6 @@ class Login : AppCompatActivity() {
             margenes
         }
 
-        // Procesar posible respuesta de Spotify al abrir la Activity
         intent?.let { procesarRespuestaSpotify(it) }
 
         val botonIniciarSesion = findViewById<Button>(R.id.btnLogin)
