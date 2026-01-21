@@ -10,6 +10,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.panchify.R
 import com.example.panchify.config.SpotifyConfig
+import com.example.panchify.preferences.SessionManager
 
 class Login : AppCompatActivity() {
 
@@ -77,6 +78,7 @@ class Login : AppCompatActivity() {
     }
 
     private fun irAPantallaPrincipal() {
+        SessionManager(this).setLoggedIn(true)
         val intentoPantallaPrincipal = Intent(this, Home::class.java)
         startActivity(intentoPantallaPrincipal)
         finish()
