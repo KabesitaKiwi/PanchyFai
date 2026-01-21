@@ -21,13 +21,13 @@ class MainActivity : AppCompatActivity() {
             insets
         }
         val sessionManager = SessionManager(this)
-
         if (sessionManager.isLoggedIn()) {
             // Ya hay sesión → Home
             startActivity(Intent(this, Home::class.java))
+
         } else {
             // No hay sesión → Login
-            startActivity(Intent(this, Home::class.java))
+            startActivity(Intent(this, Login::class.java))
         }
 
         finish()
