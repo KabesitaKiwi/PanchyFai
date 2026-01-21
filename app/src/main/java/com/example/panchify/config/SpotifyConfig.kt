@@ -14,6 +14,8 @@ object SpotifyConfig {
         "user-top-read",
         "playlist-read-private",
         "playlist-modify-private",
-        "playlist-modify-public"
+        "playlist-modify-public",
+        "user-read-recently-played"
+
     )
 }

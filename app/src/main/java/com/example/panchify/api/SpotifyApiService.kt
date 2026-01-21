@@ -14,4 +14,10 @@ interface SpotifyApiService {
         @Query("time_range") timeRange: String,
         @Query("limit") limit: Int = 20
     ): Call<TopTracksResponse>
+
+    @GET("v1/me/player/recently-played")
+    fun getRecentlyPlayed(
+        @Header("Authorization") token: String,
+        @Query("limit") limit: Int = 20
+    ): Call<com.example.panchify.vistas.RecentlyPlayedResponse>
 }

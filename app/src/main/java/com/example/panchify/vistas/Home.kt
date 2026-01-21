@@ -13,32 +13,33 @@ import com.example.panchify.R
 import com.example.panchify.adapters.TopTracksAdapter
 import com.example.panchify.api.RetrofitClient
 import com.example.panchify.modelos.TopTracksResponse
+import com.example.panchify.modelos.Track
 import com.example.panchify.preferences.SessionManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+data class RecentlyPlayedResponse(
+    val items: List<PlayHistoryItem>
+)
+data class PlayHistoryItem(
+    val track: Track,
+    val played_at: String
+)
 class Home : AppCompatActivity() {
 
     private lateinit var recyclerTopTracks: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_home)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-
         // Setup RecyclerView
         recyclerTopTracks = findViewById(R.id.recyclerTopTracks)
         recyclerTopTracks.layoutManager = LinearLayoutManager(this)
 
         // Cargar datos
-        cargarTopTracks()
+       cargarReproducidoUltimamente()
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
@@ -78,7 +79,7 @@ class Home : AppCompatActivity() {
 
     }
 
-    private fun cargarTopTracks() {
+    /*private fun cargarTopTracks() {
         val sessionManager = SessionManager(this)
         val token = sessionManager.getAccessToken()
 
@@ -109,6 +110,45 @@ class Home : AppCompatActivity() {
              val intent = Intent(this, Login::class.java)
              startActivity(intent)
              finish()
+        }
+    }
+     */
+
+    private fun cargarReproducidoUltimamente() {
+        val sessionManager = SessionManager(this)
+        val token = sessionManager.getAccessToken()
+
+        if (token != null) {
+            // NOTA: Si 'getRecentlyPlayed' sale en ROJO, lee las instrucciones de abajo
+            RetrofitClient.spotifyApiService.getRecentlyPlayed(
+                token = "Bearer $token",
+                limit = 20
+            ).enqueue(object : Callback<RecentlyPlayedResponse> {
+                override fun onResponse(
+                    call: Call<RecentlyPlayedResponse>,
+                    response: Response<RecentlyPlayedResponse>
+                ) {
+                    if (response.isSuccessful && response.body() != null) {
+                        val historyItems = response.body()!!.items
+
+                        // Convertimos el historial a lista de canciones para usar tu adaptador
+                        val tracks = historyItems.map { it.track }
+
+                        val adapter = TopTracksAdapter(tracks)
+                        recyclerTopTracks.adapter = adapter
+                    } else {
+                        Log.e("API", "Error: ${response.code()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<RecentlyPlayedResponse>, t: Throwable) {
+                    Log.e("API", "Error de red", t)
+                }
+            })
+        } else {
+            val intent = Intent(this, Login::class.java)
+            startActivity(intent)
+            finish()
         }
     }
 }

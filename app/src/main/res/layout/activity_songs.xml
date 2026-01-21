@@ -125,6 +125,8 @@
 
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
+
+
     <!-- BOTTOM NAV -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
@@ -138,5 +140,6 @@
         app:labelVisibilityMode="labeled"
         app:itemTextAppearanceActive="@style/BottomNavText.Active"
         app:itemTextAppearanceInactive="@style/BottomNavText.Inactive"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

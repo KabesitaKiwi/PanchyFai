@@ -47,6 +47,8 @@ class Login : AppCompatActivity() {
     /**
      * Abre el navegador con el login de Spotify
      */
+
+
     private fun iniciarSesionSpotify() {
         val permisos = SpotifyConfig.SCOPES.joinToString(" ")
 
