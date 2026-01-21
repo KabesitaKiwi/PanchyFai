@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/ic_launcher_foreground"
+        android:title="Inicio" />
+    <item
+        android:id="@+id/nav_songs"
+        android:icon="@drawable/ic_launcher_foreground"
+        android:title="Canciones" />
+    <item
+        android:id="@+id/nav_stats"
+        android:icon="@drawable/ic_launcher_foreground"
+        android:title="Estadísticas" />
+    <item
+        android:id="@+id/nav_comments"
+        android:icon="@drawable/ic_launcher_foreground"
+        android:title="Comentarios" />
+    <item
+        android:id="@+id/nav_friends"
+        android:icon="@drawable/ic_launcher_foreground"
+        android:title="Amigos" />
+</menu>

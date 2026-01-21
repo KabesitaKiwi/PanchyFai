@@ -7,12 +7,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/fondo_principal"
-    android:padding="20dp"
     tools:context=".vistas.Stats">
 
     <!-- Title -->
 
-    <!-- Tabs (Artists, Songs, etc.) -->
+    <!-- Title -->
     <TextView
         android:id="@+id/titleStats"
         android:layout_width="wrap_content"
@@ -21,19 +20,25 @@
         android:textColor="@color/spotify_green"
         android:textSize="28sp"
         android:textStyle="bold"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="24dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/titleStats"
         android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="32dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:tabMode="scrollable"
         app:tabGravity="fill"
         android:background="@android:color/transparent">
-
+        
+        <!-- Tabs content preserved -->
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -59,6 +64,7 @@
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="16dp"
+        android:layout_marginHorizontal="32dp"
         android:background="#05000000"
         app:layout_constraintTop_toBottomOf="@id/tabLayout"
         app:layout_constraintStart_toStartOf="parent"
@@ -73,10 +79,11 @@
         app:singleSelection="true"
         app:selectionRequired="true"
         app:checkedButton="@id/btn4Weeks"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="8dp">
+        android:layout_marginBottom="8dp"
+        android:layout_marginHorizontal="32dp">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn4Weeks"
@@ -103,5 +110,18 @@
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
             
     </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:menu="@menu/bottom_nav_menu"
+        android:background="@color/fondo_principal"
+        app:itemIconTint="@color/selector_bottom_nav"
+        app:itemTextColor="@color/selector_bottom_nav"
+        app:labelVisibilityMode="labeled"
+        app:itemTextAppearanceActive="@style/BottomNavText.Active"
+        app:itemTextAppearanceInactive="@style/BottomNavText.Inactive"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
