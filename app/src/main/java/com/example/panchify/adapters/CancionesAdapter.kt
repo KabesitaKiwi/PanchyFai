@@ -19,7 +19,7 @@ class CancionesAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CancionViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_cancion, parent, false)
+            .inflate(R.layout.activity_songs, parent, false)
         return CancionViewHolder(view)
     }
 

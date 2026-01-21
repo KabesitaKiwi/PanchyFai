@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <ImageView
+            android:id="@+id/imgAlbum"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="#E5E7EB"
+            android:scaleType="centerCrop" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/txtSongName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Song Name"
+                android:textColor="#111111"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtArtistName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Artist Name"
+                android:textColor="#6B7280"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

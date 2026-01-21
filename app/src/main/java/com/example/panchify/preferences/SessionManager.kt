@@ -32,5 +32,10 @@ class SessionManager(context: Context) {
         val expiration = prefs.getLong("token_expiration", 0)
         return System.currentTimeMillis() > expiration
     }
+
+    fun hasValidSession(): Boolean {
+        val token = getAccessToken()
+        return token != null && !isTokenExpired()
+    }
 }
 
