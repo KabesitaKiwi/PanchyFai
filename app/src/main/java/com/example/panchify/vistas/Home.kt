@@ -44,37 +44,21 @@ class Home : AppCompatActivity() {
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
         bottomNavigationView.setOnItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.nav_home -> {
-                    val intent = Intent(this, Home::class.java)
-                    startActivity(intent)
-                    true
-                }
-                R.id.nav_songs -> {
-                    val intent = Intent(this, Songs::class.java)
-                    startActivity(intent)
-                    true
-                }
-                R.id.nav_stats -> {
-                    // acción search
-                    val intent = Intent(this, Stats::class.java)
-                    startActivity(intent)
-                    true
-                }
-                R.id.nav_comments -> {
-                    // acción library
-                    val intent = Intent(this, Comments::class.java)
-                    startActivity(intent)
-                    true
-                }
-                R.id.nav_friends -> {
-                    // acción profile
-                    val intent = Intent(this, Friends::class.java)
-                    startActivity(intent)
-                    true
-                }
-                else -> false
+            val targetClass = when (menuItem.itemId) {
+                R.id.nav_home -> if (this !is Home) Home::class.java else null
+                R.id.nav_songs -> if (this !is Songs) Songs::class.java else null
+                R.id.nav_stats -> if (this !is Stats) Stats::class.java else null
+                R.id.nav_comments -> if (this !is Comments) Comments::class.java else null
+                R.id.nav_friends -> if (this !is Friends) Friends::class.java else null
+                else -> null
             }
+            if (targetClass != null) {
+                val targetIntent = android.content.Intent(this, targetClass)
+                targetIntent.flags = android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION
+                startActivity(targetIntent)
+                overridePendingTransition(0, 0)
+            }
+            true
         }
 
     }
@@ -150,5 +134,51 @@ class Home : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
+    }
+
+    private fun cargarEscuchandoAhora() {
+        val sessionManager = com.example.panchify.preferences.SessionManager(this)
+        val token = sessionManager.getAccessToken()
+
+        if (token != null) {
+            com.example.panchify.api.RetrofitClient.spotifyApiService.getCurrentlyPlaying("Bearer $token")
+                .enqueue(object : retrofit2.Callback<com.example.panchify.modelos.CurrentlyPlayingResponse> {
+                    override fun onResponse(
+                        call: retrofit2.Call<com.example.panchify.modelos.CurrentlyPlayingResponse>,
+                        response: retrofit2.Response<com.example.panchify.modelos.CurrentlyPlayingResponse>
+                    ) {
+                        val card = findViewById<com.google.android.material.card.MaterialCardView>(R.id.cardCurrentlyPlaying)
+                        val title = findViewById<android.widget.TextView>(R.id.txtTitleCurrentlyPlaying)
+                        if (response.isSuccessful && response.body() != null && response.body()!!.is_playing && response.body()!!.item != null) {
+                            val track = response.body()!!.item!!
+                            findViewById<android.widget.TextView>(R.id.txtCurrentSong).text = track.name
+                            findViewById<android.widget.TextView>(R.id.txtCurrentArtist).text = track.artists.joinToString(", ") { it.name }
+                            
+                            val imgView = findViewById<android.widget.ImageView>(R.id.tarjetaEscuchandoAhora)
+                            if (track.album.images.isNotEmpty()) {
+                                com.bumptech.glide.Glide.with(this@Home)
+                                    .load(track.album.images[0].url)
+                                    .into(imgView)
+                            }
+                            card.visibility = android.view.View.VISIBLE
+                            title.visibility = android.view.View.VISIBLE
+                        } else {
+                            card.visibility = android.view.View.GONE
+                            title.visibility = android.view.View.GONE
+                        }
+                    }
+
+                    override fun onFailure(call: retrofit2.Call<com.example.panchify.modelos.CurrentlyPlayingResponse>, t: Throwable) {
+                        // Ignorar fallo de red
+                    }
+                })
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val bottomNavigationView = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_navigation)
+        bottomNavigationView.menu.findItem(R.id.nav_home)?.isChecked = true
+        cargarEscuchandoAhora()
     }
 }

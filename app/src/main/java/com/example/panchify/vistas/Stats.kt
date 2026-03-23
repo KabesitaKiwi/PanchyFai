@@ -18,28 +18,27 @@ class Stats : AppCompatActivity() {
         val bottomNavigationView = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.selectedItemId = R.id.nav_stats
         bottomNavigationView.setOnItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.nav_home -> {
-                    startActivity(android.content.Intent(this, Home::class.java))
-                    true
-                }
-                R.id.nav_songs -> {
-                    startActivity(android.content.Intent(this, Songs::class.java))
-                    true
-                }
-                R.id.nav_stats -> {
-                    true
-                }
-                R.id.nav_comments -> {
-                    startActivity(android.content.Intent(this, Comments::class.java))
-                    true
-                }
-                R.id.nav_friends -> {
-                    startActivity(android.content.Intent(this, Friends::class.java))
-                    true
-                }
-                else -> false
+            val targetClass = when (menuItem.itemId) {
+                R.id.nav_home -> if (this !is Home) Home::class.java else null
+                R.id.nav_songs -> if (this !is Songs) Songs::class.java else null
+                R.id.nav_stats -> if (this !is Stats) Stats::class.java else null
+                R.id.nav_comments -> if (this !is Comments) Comments::class.java else null
+                R.id.nav_friends -> if (this !is Friends) Friends::class.java else null
+                else -> null
             }
+            if (targetClass != null) {
+                val targetIntent = android.content.Intent(this, targetClass)
+                targetIntent.flags = android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION
+                startActivity(targetIntent)
+                overridePendingTransition(0, 0)
+            }
+            true
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val bottomNavigationView = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_navigation)
+        bottomNavigationView.menu.findItem(R.id.nav_stats)?.isChecked = true
     }
 }

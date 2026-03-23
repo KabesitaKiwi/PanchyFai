@@ -34,6 +34,7 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/txtTitleCurrentlyPlaying"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
@@ -43,6 +44,7 @@
                 android:textStyle="bold" />
 
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardCurrentlyPlaying"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="22dp"
@@ -57,11 +59,12 @@
                     android:orientation="vertical">
 
                     <ImageView
+                        android:id="@+id/tarjetaEscuchandoAhora"
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
                         android:background="#E0E0E0"
                         android:contentDescription="Album Cover"
-                        android:scaleType="centerCrop"/>
+                        android:scaleType="centerCrop" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -70,6 +73,7 @@
                         android:padding="16dp">
 
                         <TextView
+                            android:id="@+id/txtCurrentSong"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Canción Desconocida"
@@ -78,6 +82,7 @@
                             android:textColor="#111111"/>
 
                         <TextView
+                            android:id="@+id/txtCurrentArtist"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Artista Desconocido"
@@ -194,7 +199,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"
-                tools:listitem="@layout/item_track" />
+                tools:listitem="@layout/item_track"
+                tools:itemCount="20" />
 
         </LinearLayout>
     </ScrollView>

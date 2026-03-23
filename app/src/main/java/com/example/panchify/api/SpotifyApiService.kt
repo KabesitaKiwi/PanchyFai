@@ -20,4 +20,9 @@ interface SpotifyApiService {
         @Header("Authorization") token: String,
         @Query("limit") limit: Int = 20
     ): Call<com.example.panchify.vistas.RecentlyPlayedResponse>
+
+    @GET("v1/me/player/currently-playing")
+    fun getCurrentlyPlaying(
+        @Header("Authorization") token: String
+    ): Call<com.example.panchify.modelos.CurrentlyPlayingResponse>
 }
