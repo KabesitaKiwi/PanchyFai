@@ -59,9 +59,10 @@
                         android:gravity="center"
                         android:padding="8dp">
                         <TextView
+                            android:id="@+id/txtStatMinutos"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="12,450"
+                            android:text="—"
                             android:textSize="24sp"
                             android:textStyle="bold"
                             android:textColor="#111111"/>
@@ -89,9 +90,10 @@
                         android:gravity="center"
                         android:padding="8dp">
                         <TextView
+                            android:id="@+id/txtStatHoras"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="207"
+                            android:text="—"
                             android:textSize="24sp"
                             android:textStyle="bold"
                             android:textColor="#111111"/>
@@ -119,9 +121,10 @@
                         android:gravity="center"
                         android:padding="8dp">
                         <TextView
+                            android:id="@+id/txtStatArtistas"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="142"
+                            android:text="—"
                             android:textSize="24sp"
                             android:textStyle="bold"
                             android:textColor="#111111"/>
@@ -149,9 +152,10 @@
                         android:gravity="center"
                         android:padding="8dp">
                         <TextView
+                            android:id="@+id/txtStatCanciones"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="853"
+                            android:text="—"
                             android:textSize="24sp"
                             android:textStyle="bold"
                             android:textColor="#111111"/>

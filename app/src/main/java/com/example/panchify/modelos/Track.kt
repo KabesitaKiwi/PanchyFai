@@ -4,7 +4,8 @@ data class Track(
     val id: String,
     val name: String,
     val artists: List<Artist>,
-    val album: Album
+    val album: Album,
+    val duration_ms: Long = 0
 )
 
 data class Artist(
