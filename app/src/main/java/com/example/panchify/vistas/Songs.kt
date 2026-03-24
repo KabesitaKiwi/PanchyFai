@@ -180,15 +180,16 @@ class Songs : AppCompatActivity() {
             override fun onResponse(call: Call<TopArtistsResponse>, response: Response<TopArtistsResponse>) {
                 mostrarCarga(false)
                 if (response.isSuccessful && response.body() != null) {
-                    val genreMap = mutableMapOf<String, Int>()
+                    // Mapa género → lista de artistas que lo tienen
+                    val genreArtistsMap = mutableMapOf<String, MutableList<com.example.panchify.modelos.ArtistFull>>()
                     response.body()!!.items.forEach { artist ->
                         artist.genres.forEach { genre ->
-                            genreMap[genre] = (genreMap[genre] ?: 0) + 1
+                            genreArtistsMap.getOrPut(genre) { mutableListOf() }.add(artist)
                         }
                     }
-                    val sortedGenres = genreMap.entries
-                        .sortedByDescending { it.value }
-                        .map { GenreCount(it.key, it.value) }
+                    val sortedGenres = genreArtistsMap.entries
+                        .sortedByDescending { it.value.size }
+                        .map { GenreCount(genre = it.key, count = it.value.size, artists = it.value) }
                     listaCanciones.adapter = GenresAdapter(sortedGenres)
                 }
             }
