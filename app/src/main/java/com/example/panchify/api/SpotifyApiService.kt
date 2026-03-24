@@ -1,5 +1,6 @@
 package com.example.panchify.api
 
+import com.example.panchify.modelos.TopArtistsResponse
 import com.example.panchify.modelos.TopTracksResponse
 import retrofit2.Call
 import retrofit2.http.GET
@@ -14,6 +15,13 @@ interface SpotifyApiService {
         @Query("time_range") timeRange: String,
         @Query("limit") limit: Int = 20
     ): Call<TopTracksResponse>
+
+    @GET("v1/me/top/artists")
+    fun getTopArtists(
+        @Header("Authorization") authHeader: String,
+        @Query("time_range") timeRange: String,
+        @Query("limit") limit: Int = 20
+    ): Call<TopArtistsResponse>
 
     @GET("v1/me/player/recently-played")
     fun getRecentlyPlayed(

@@ -20,6 +20,12 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+import com.spotify.android.appremote.api.ConnectionParams
+import com.spotify.android.appremote.api.Connector
+import com.spotify.android.appremote.api.SpotifyAppRemote
+import com.spotify.protocol.types.PlayerState
+
+
 data class RecentlyPlayedResponse(
     val items: List<PlayHistoryItem>
 )
@@ -30,6 +36,62 @@ data class PlayHistoryItem(
 class Home : AppCompatActivity() {
 
     private lateinit var recyclerTopTracks: RecyclerView
+    private var mSpotifyAppRemote: SpotifyAppRemote? = null
+
+    private val CLIENT_ID = "7169289ba7de4350b0ef5105ace1e25f"
+    private val REDIRECT_URI = "panchify://callback"
+
+    private fun conectarAppRemote() {
+
+        val connectionParams = ConnectionParams.Builder(CLIENT_ID)
+            .setRedirectUri(REDIRECT_URI)
+            .showAuthView(false) // ponerlo en flase para que salga la autorizacion y que los botones y canciones se actualicen automaticamente a tiempo real
+            .build()
+
+        SpotifyAppRemote.connect(this, connectionParams, object : Connector.ConnectionListener {
+            override fun onConnected(appRemote: SpotifyAppRemote) {
+                mSpotifyAppRemote = appRemote
+                Log.d("Home", "Conectado a Spotify")
+
+                cambioCancion();
+            }
+
+            override fun onFailure(throwable: Throwable) {
+                Log.e("Home", "Error al conectar a Spotify", throwable)
+                if (throwable is com.spotify.android.appremote.api.error.UserNotAuthorizedException ||
+                    throwable.message?.contains("Explicit user authorization is required") == true) {
+                    
+                    android.widget.Toast.makeText(this@Home, "Forzando pantalla de permisos...", android.widget.Toast.LENGTH_SHORT).show()
+                    
+                    val request = com.spotify.sdk.android.auth.AuthorizationRequest.Builder(
+                        CLIENT_ID, com.spotify.sdk.android.auth.AuthorizationResponse.Type.TOKEN, REDIRECT_URI
+                    ).setScopes(arrayOf("app-remote-control")).build()
+                    
+                    com.spotify.sdk.android.auth.AuthorizationClient.openLoginActivity(this@Home, 1337, request)
+                } else {
+                    android.widget.Toast.makeText(this@Home, "ERROR: ${throwable.message}", android.widget.Toast.LENGTH_LONG).show()
+                }
+            }
+        })
+    }
+
+    override fun onStart() {
+        super.onStart()
+        conectarAppRemote()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
+        super.onActivityResult(requestCode, resultCode, intent)
+        if (requestCode == 1337) {
+            val response = com.spotify.sdk.android.auth.AuthorizationClient.getResponse(resultCode, intent)
+            if (response.type == com.spotify.sdk.android.auth.AuthorizationResponse.Type.TOKEN) {
+                android.widget.Toast.makeText(this, "Permiso concedido. Reconectando...", android.widget.Toast.LENGTH_SHORT).show()
+                conectarAppRemote()
+            } else if (response.type == com.spotify.sdk.android.auth.AuthorizationResponse.Type.ERROR) {
+                android.widget.Toast.makeText(this, "Error de permisos: ${response.error}", android.widget.Toast.LENGTH_LONG).show()
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +102,7 @@ class Home : AppCompatActivity() {
 
         // Cargar datos
        cargarReproducidoUltimamente()
+       configurarBotonesReproduccion()
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
@@ -149,10 +212,17 @@ class Home : AppCompatActivity() {
                     ) {
                         val card = findViewById<com.google.android.material.card.MaterialCardView>(R.id.cardCurrentlyPlaying)
                         val title = findViewById<android.widget.TextView>(R.id.txtTitleCurrentlyPlaying)
-                        if (response.isSuccessful && response.body() != null && response.body()!!.is_playing && response.body()!!.item != null) {
+                        if (response.isSuccessful && response.body() != null && response.body()!!.item != null) {
                             val track = response.body()!!.item!!
                             findViewById<android.widget.TextView>(R.id.txtCurrentSong).text = track.name
                             findViewById<android.widget.TextView>(R.id.txtCurrentArtist).text = track.artists.joinToString(", ") { it.name }
+                            
+                            val btnPlayPause = findViewById<android.widget.ImageButton>(R.id.btnPlayPause)
+                            if (response.body()!!.is_playing) {
+                                btnPlayPause.setImageResource(android.R.drawable.ic_media_pause)
+                            } else {
+                                btnPlayPause.setImageResource(android.R.drawable.ic_media_play)
+                            }
                             
                             val imgView = findViewById<android.widget.ImageView>(R.id.tarjetaEscuchandoAhora)
                             if (track.album.images.isNotEmpty()) {
@@ -180,5 +250,79 @@ class Home : AppCompatActivity() {
         val bottomNavigationView = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.menu.findItem(R.id.nav_home)?.isChecked = true
         cargarEscuchandoAhora()
+    }
+
+    private fun configurarBotonesReproduccion() {
+        val btnPrev = findViewById<android.widget.ImageButton>(R.id.btnPrev)
+        val btnPlayPause = findViewById<android.widget.ImageButton>(R.id.btnPlayPause)
+        val btnNext = findViewById<android.widget.ImageButton>(R.id.btnNext)
+
+        btnPrev.setOnClickListener {
+            if (mSpotifyAppRemote == null) {
+                android.widget.Toast.makeText(this, "Botón pulsado pero no hay conexión a Spotify", android.widget.Toast.LENGTH_SHORT).show()
+            } else {
+                mSpotifyAppRemote?.playerApi?.skipPrevious()
+            }
+        }
+        btnPlayPause.setOnClickListener {
+            if (mSpotifyAppRemote == null) {
+                android.widget.Toast.makeText(this, "Botón pulsado pero no hay conexión a Spotify", android.widget.Toast.LENGTH_SHORT).show()
+            } else {
+                mSpotifyAppRemote?.playerApi?.playerState?.setResultCallback { state ->
+                    if (state.isPaused) {
+                        mSpotifyAppRemote?.playerApi?.resume()
+                    } else {
+                        mSpotifyAppRemote?.playerApi?.pause()
+                    }
+                }
+            }
+        }
+        btnNext.setOnClickListener {
+            if (mSpotifyAppRemote == null) {
+                android.widget.Toast.makeText(this, "Botón pulsado pero no hay conexión a Spotify", android.widget.Toast.LENGTH_SHORT).show()
+            } else {
+                mSpotifyAppRemote?.playerApi?.skipNext()
+            }
+        }
+    }
+
+    private fun cambioCancion(){
+        mSpotifyAppRemote?.playerApi?.subscribeToPlayerState()?.setEventCallback { playerState ->
+            val track = playerState.track
+            if (track != null) {
+                val card = findViewById<com.google.android.material.card.MaterialCardView>(R.id.cardCurrentlyPlaying)
+                val titleText = findViewById<android.widget.TextView>(R.id.txtTitleCurrentlyPlaying)
+                val songName = findViewById<android.widget.TextView>(R.id.txtCurrentSong)
+                val artistName = findViewById<android.widget.TextView>(R.id.txtCurrentArtist)
+                val imgView = findViewById<android.widget.ImageView>(R.id.tarjetaEscuchandoAhora)
+                val btnPlayPause = findViewById<android.widget.ImageButton>(R.id.btnPlayPause)
+                
+                // Hacemos visible la tarjeta
+                card.visibility = android.view.View.VISIBLE
+                titleText.visibility = android.view.View.VISIBLE
+                
+                if (playerState.isPaused) {
+                    songName.text = "${track.name} "
+                    btnPlayPause.setImageResource(android.R.drawable.ic_media_play)
+                } else {
+                    songName.text = track.name
+                    btnPlayPause.setImageResource(android.R.drawable.ic_media_pause)
+                }
+                
+                artistName.text = track.artist.name
+                
+                mSpotifyAppRemote?.imagesApi?.getImage(track.imageUri)?.setResultCallback { bitmap ->
+                    imgView.setImageBitmap(bitmap)
+                }
+            }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // Desconectar al salir para ahorrar batería
+        mSpotifyAppRemote?.let {
+            SpotifyAppRemote.disconnect(it)
+        }
     }
 }
