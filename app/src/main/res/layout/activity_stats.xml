@@ -63,9 +63,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="—"
-                            android:textSize="24sp"
+                            android:textSize="28sp"
                             android:textStyle="bold"
-                            android:textColor="#111111"/>
+                            android:textColor="#0F8A45"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -94,9 +94,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="—"
-                            android:textSize="24sp"
+                            android:textSize="28sp"
                             android:textStyle="bold"
-                            android:textColor="#111111"/>
+                            android:textColor="#2563EB"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -125,9 +125,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="—"
-                            android:textSize="24sp"
+                            android:textSize="28sp"
                             android:textStyle="bold"
-                            android:textColor="#111111"/>
+                            android:textColor="#7C3AED"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -156,9 +156,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="—"
-                            android:textSize="24sp"
+                            android:textSize="28sp"
                             android:textStyle="bold"
-                            android:textColor="#111111"/>
+                            android:textColor="#DB2777"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
