@@ -33,6 +33,22 @@ class Songs : AppCompatActivity() {
     private var tabSeleccionado = 0          // 0=Canciones, 1=Artistas, 2=Álbumes, 3=Género
     private var periodoSeleccionado = "short_term"  // short_term / medium_term / long_term
 
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        procesarIntent()
+    }
+
+    private fun procesarIntent() {
+        val tabIndex = intent.getIntExtra("TAB_INDEX", -1)
+        if (tabIndex != -1) {
+            val tabLayout = findViewById<TabLayout>(R.id.seleccionadorCanciones)
+            tabLayout.getTabAt(tabIndex)?.select()
+            // Eliminar el extra para no volver a procesarlo si se rota la pantalla
+            intent.removeExtra("TAB_INDEX")
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_songs)
@@ -91,6 +107,7 @@ class Songs : AppCompatActivity() {
         }
 
         // Carga inicial
+        procesarIntent()
         cargarDatos()
     }
 

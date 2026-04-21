@@ -13,6 +13,7 @@ import com.example.panchify.R
 import com.example.panchify.adapters.TopTracksAdapter
 import com.example.panchify.api.RetrofitClient
 import com.example.panchify.modelos.TopTracksResponse
+import com.example.panchify.modelos.TopArtistsResponse
 import com.example.panchify.modelos.Track
 import com.example.panchify.preferences.SessionManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -103,6 +104,8 @@ class Home : AppCompatActivity() {
         // Cargar datos
        cargarReproducidoUltimamente()
        configurarBotonesReproduccion()
+       cargarTarjetasExplorar()
+       configurarClicksTarjetas()
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
@@ -126,40 +129,128 @@ class Home : AppCompatActivity() {
 
     }
 
-    /*private fun cargarTopTracks() {
-        val sessionManager = SessionManager(this)
-        val token = sessionManager.getAccessToken()
-
-        if (token != null) {
-            RetrofitClient.spotifyApiService.getTopTracks(
-                "Bearer $token",
-                "short_term" // ultimas 4 semanas
-            ).enqueue(object : Callback<TopTracksResponse> {
-                override fun onResponse(
-                    call: Call<TopTracksResponse>,
-                    response: Response<TopTracksResponse>
-                ) {
-                    if (response.isSuccessful && response.body() != null) {
-                        val tracks = response.body()!!.items
-                        val adapter = TopTracksAdapter(tracks)
-                        recyclerTopTracks.adapter = adapter
-                    } else {
-                        Log.e("Home", "Error en respuesta API: ${response.code()}")
-                    }
-                }
-
-                override fun onFailure(call: Call<TopTracksResponse>, t: Throwable) {
-                    Log.e("Home", "Fallo en llamada API", t)
-                }
-            })
-        } else {
-            // Manejar caso no logueado redirigiendo a Login o mostrando error
-             val intent = Intent(this, Login::class.java)
-             startActivity(intent)
-             finish()
+    private fun configurarClicksTarjetas() {
+        findViewById<android.view.View>(R.id.cardCanciones).setOnClickListener {
+            irASongsTab(0)
+        }
+        findViewById<android.view.View>(R.id.cardArtistas).setOnClickListener {
+            irASongsTab(1)
+        }
+        findViewById<android.view.View>(R.id.cardAlbumes).setOnClickListener {
+            irASongsTab(2)
+        }
+        findViewById<android.view.View>(R.id.cardGeneros).setOnClickListener {
+            irASongsTab(3)
         }
     }
-     */
+
+    private fun irASongsTab(tabIndex: Int) {
+        val intent = Intent(this, Songs::class.java)
+        intent.putExtra("TAB_INDEX", tabIndex)
+        intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_NO_ANIMATION
+        startActivity(intent)
+        overridePendingTransition(0, 0)
+    }
+
+    private fun cargarTarjetasExplorar() {
+        val token = SessionManager(this).getAccessToken() ?: return
+
+        // 1. Top Canciones (limit=4)
+        RetrofitClient.spotifyApiService.getTopTracks("Bearer $token", "short_term", 4)
+            .enqueue(object : Callback<TopTracksResponse> {
+                override fun onResponse(call: Call<TopTracksResponse>, response: Response<TopTracksResponse>) {
+                    if (response.isSuccessful && response.body() != null) {
+                        val items = response.body()!!.items
+                        if (items.size > 0) cargarImagenSegura(items[0].album.images.firstOrNull()?.url, R.id.imgSong1)
+                        if (items.size > 1) cargarImagenSegura(items[1].album.images.firstOrNull()?.url, R.id.imgSong2)
+                        if (items.size > 2) cargarImagenSegura(items[2].album.images.firstOrNull()?.url, R.id.imgSong3)
+                        if (items.size > 3) cargarImagenSegura(items[3].album.images.firstOrNull()?.url, R.id.imgSong4)
+                    }
+                }
+                override fun onFailure(call: Call<TopTracksResponse>, t: Throwable) {}
+            })
+
+        // 2. Top Artistas (limit=4)
+        RetrofitClient.spotifyApiService.getTopArtists("Bearer $token", "short_term", 4)
+            .enqueue(object : Callback<TopArtistsResponse> {
+                override fun onResponse(call: Call<TopArtistsResponse>, response: Response<TopArtistsResponse>) {
+                    if (response.isSuccessful && response.body() != null) {
+                        val items = response.body()!!.items
+                        if (items.size > 0) cargarImagenSegura(items[0].images.firstOrNull()?.url, R.id.imgArt1)
+                        if (items.size > 1) cargarImagenSegura(items[1].images.firstOrNull()?.url, R.id.imgArt2)
+                        if (items.size > 2) cargarImagenSegura(items[2].images.firstOrNull()?.url, R.id.imgArt3)
+                        if (items.size > 3) cargarImagenSegura(items[3].images.firstOrNull()?.url, R.id.imgArt4)
+                    }
+                }
+                override fun onFailure(call: Call<TopArtistsResponse>, t: Throwable) {}
+            })
+
+        // 3 y 4. Para Álbumes y Géneros necesitamos más datos (limit=50)
+        RetrofitClient.spotifyApiService.getTopArtists("Bearer $token", "short_term", 50)
+            .enqueue(object : Callback<TopArtistsResponse> {
+                override fun onResponse(call: Call<TopArtistsResponse>, response: Response<TopArtistsResponse>) {
+                    if (response.isSuccessful && response.body() != null) {
+                        val items = response.body()!!.items
+                        
+                        // Géneros: Extraer los 4 géneros más repetidos
+                        val genreImageMap = mutableMapOf<String, String>() // género -> imagen representativa
+                        val genreCounts = mutableMapOf<String, Int>()
+                        
+                        items.forEach { artist ->
+                            val imageUrl = artist.images.firstOrNull()?.url ?: ""
+                            artist.genres.forEach { genre ->
+                                genreCounts[genre] = genreCounts.getOrDefault(genre, 0) + 1
+                                if (!genreImageMap.containsKey(genre) && imageUrl.isNotEmpty()) {
+                                    genreImageMap[genre] = imageUrl
+                                }
+                            }
+                        }
+                        
+                        val topGenres = genreCounts.entries.sortedByDescending { it.value }.take(4).map { it.key }
+                        
+                        if (topGenres.size > 0) cargarImagenSegura(genreImageMap[topGenres[0]], R.id.imgGen1)
+                        if (topGenres.size > 1) cargarImagenSegura(genreImageMap[topGenres[1]], R.id.imgGen2)
+                        if (topGenres.size > 2) cargarImagenSegura(genreImageMap[topGenres[2]], R.id.imgGen3)
+                        if (topGenres.size > 3) cargarImagenSegura(genreImageMap[topGenres[3]], R.id.imgGen4)
+                    }
+                }
+                override fun onFailure(call: Call<TopArtistsResponse>, t: Throwable) {}
+            })
+
+        RetrofitClient.spotifyApiService.getTopTracks("Bearer $token", "short_term", 50)
+            .enqueue(object : Callback<TopTracksResponse> {
+                override fun onResponse(call: Call<TopTracksResponse>, response: Response<TopTracksResponse>) {
+                    if (response.isSuccessful && response.body() != null) {
+                        val items = response.body()!!.items
+                        
+                        // Álbumes: Extraer los 4 álbumes únicos más escuchados (por aparición en top tracks)
+                        val albumUrls = mutableListOf<String>()
+                        val albumNames = mutableSetOf<String>()
+                        
+                        for (track in items) {
+                            if (!albumNames.contains(track.album.name)) {
+                                albumNames.add(track.album.name)
+                                track.album.images.firstOrNull()?.url?.let { albumUrls.add(it) }
+                                if (albumUrls.size == 4) break
+                            }
+                        }
+                        
+                        if (albumUrls.size > 0) cargarImagenSegura(albumUrls[0], R.id.imgAlbum1)
+                        if (albumUrls.size > 1) cargarImagenSegura(albumUrls[1], R.id.imgAlbum2)
+                        if (albumUrls.size > 2) cargarImagenSegura(albumUrls[2], R.id.imgAlbum3)
+                        if (albumUrls.size > 3) cargarImagenSegura(albumUrls[3], R.id.imgAlbum4)
+                    }
+                }
+                override fun onFailure(call: Call<TopTracksResponse>, t: Throwable) {}
+            })
+    }
+
+    private fun cargarImagenSegura(url: String?, imageViewId: Int) {
+        if (url != null) {
+            val imgView = findViewById<android.widget.ImageView>(imageViewId)
+            com.bumptech.glide.Glide.with(this).load(url).into(imgView)
+        }
+    }
 
     private fun cargarReproducidoUltimamente() {
         val sessionManager = SessionManager(this)

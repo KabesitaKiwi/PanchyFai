@@ -204,17 +204,20 @@
                             android:orientation="horizontal"
                             android:gravity="center_vertical">
                             <TextView
+                                android:id="@+id/txtGenero1"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="Pop"
                                 android:textStyle="bold"/>
                             <TextView
+                                android:id="@+id/txtGeneroPorcentaje1"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="45%"/>
                         </LinearLayout>
                         <ProgressBar
+                            android:id="@+id/progressGenero1"
                             style="?android:attr/progressBarStyleHorizontal"
                             android:layout_width="match_parent"
                             android:layout_height="8dp"
@@ -234,17 +237,20 @@
                             android:orientation="horizontal"
                             android:gravity="center_vertical">
                             <TextView
+                                android:id="@+id/txtGenero2"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="Rock"
                                 android:textStyle="bold"/>
                             <TextView
+                                android:id="@+id/txtGeneroPorcentaje2"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="30%"/>
                         </LinearLayout>
                         <ProgressBar
+                            android:id="@+id/progressGenero2"
                             style="?android:attr/progressBarStyleHorizontal"
                             android:layout_width="match_parent"
                             android:layout_height="8dp"
@@ -263,17 +269,20 @@
                             android:orientation="horizontal"
                             android:gravity="center_vertical">
                             <TextView
+                                android:id="@+id/txtGenero3"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="Indie"
                                 android:textStyle="bold"/>
                             <TextView
+                                android:id="@+id/txtGeneroPorcentaje3"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="25%"/>
                         </LinearLayout>
                         <ProgressBar
+                            android:id="@+id/progressGenero3"
                             style="?android:attr/progressBarStyleHorizontal"
                             android:layout_width="match_parent"
                             android:layout_height="8dp"
@@ -290,7 +299,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="24dp"
-                android:text="Tus Vibes"
+                android:text="Tus vibes de las últimas 4 semanas"
                 android:textColor="@color/spotify_green"
                 android:textSize="20sp"
                 android:textStyle="bold"
@@ -301,6 +310,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:scrollbars="none"
+                android:visibility="gone"
                 android:layout_marginTop="12dp"
                 android:paddingBottom="20dp"
                 app:layout_constraintTop_toBottomOf="@id/txtVibes">
@@ -488,10 +498,24 @@
                 </LinearLayout>
             </HorizontalScrollView>
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerVibes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="false"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="20dp"
+                app:layout_constraintTop_toBottomOf="@id/txtVibes"
+                tools:itemCount="4"
+                tools:listitem="@layout/item_vibe_card" />
+
             <Space
                 android:layout_width="match_parent"
                 android:layout_height="120dp"
-                app:layout_constraintTop_toBottomOf="@id/txtVibes"
+                app:layout_constraintTop_toBottomOf="@id/recyclerVibes"
                 android:layout_marginTop="200dp"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -517,7 +541,7 @@
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="4 Semanas"
+            android:text="4 semanas"
             android:textColor="@color/selector_chip_text_color" />
 
         <com.google.android.material.button.MaterialButton
@@ -525,7 +549,7 @@
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="6 Meses"
+            android:text="6 meses"
             android:textColor="@color/selector_chip_text_color" />
 
         <com.google.android.material.button.MaterialButton
