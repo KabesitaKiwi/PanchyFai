@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    android:background="@color/fondo_principal"
+    android:gravity="bottom"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/imgNavHeaderProfile"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginBottom="12dp"
+        android:scaleType="centerCrop"
+        android:src="@android:drawable/sym_def_app_icon" />
+
+    <TextView
+        android:id="@+id/txtNavHeaderName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Usuario"
+        android:textColor="@color/spotify_green"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+</LinearLayout>

@@ -47,4 +47,9 @@ interface SpotifyApiService {
     fun getCurrentlyPlaying(
         @Header("Authorization") token: String
     ): Call<com.example.panchify.modelos.CurrentlyPlayingResponse>
+
+    @GET("v1/me")
+    fun getProfile(
+        @Header("Authorization") token: String
+    ): Call<com.example.panchify.modelos.UserProfileResponse>
 }

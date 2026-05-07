@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/fondo_principal"
     tools:context=".vistas.Home">
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/fondo_principal">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -21,17 +27,38 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="32dp"
-            android:paddingTop="24dp"
+            android:paddingTop="16dp"
             android:paddingBottom="100dp">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:text="Inicio"
-                android:textColor="@color/spotify_green"
-                android:textSize="28sp"
-                android:textStyle="bold" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="20dp">
+
+                <ImageView
+                    android:id="@+id/imgHomeProfile"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="16dp"
+                    android:scaleType="centerCrop"
+                    android:src="@android:drawable/sym_def_app_icon"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Inicio"
+                    android:textColor="@color/spotify_green"
+                    android:textSize="28sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+
 
             <TextView
                 android:id="@+id/txtTitleCurrentlyPlaying"
@@ -334,4 +361,18 @@
         app:itemTextAppearanceActive="@style/BottomNavText.Active"
         app:itemTextAppearanceInactive="@style/BottomNavText.Inactive"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- MENÚ LATERAL -->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@color/fondo_principal"
+        app:itemTextColor="#FFFFFF"
+        app:itemIconTint="@color/spotify_green"
+        app:headerLayout="@layout/nav_header"
+        app:menu="@menu/drawer_menu" />
+
+</androidx.drawerlayout.widget.DrawerLayout>

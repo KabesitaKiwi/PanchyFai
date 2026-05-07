@@ -111,6 +111,7 @@ class Stats : AppCompatActivity() {
         }
 
         cargarEstadisticas()
+        cargarIconoPerfil()
     }
 
     override fun onResume() {

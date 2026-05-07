@@ -109,6 +109,12 @@ class Songs : AppCompatActivity() {
         // Carga inicial
         procesarIntent()
         cargarDatos()
+        cargarIconoPerfil()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        com.example.panchify.api.SpotifyRemoteManager.connect(this)
     }
 
     private fun cargarDatos() {

@@ -36,6 +36,8 @@ class Comments : AppCompatActivity() {
             }
             true
         }
+
+        cargarIconoPerfil()
     }
 
     override fun onResume() {

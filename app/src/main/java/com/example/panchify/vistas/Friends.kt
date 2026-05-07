@@ -1,4 +1,4 @@
-package com.example.panchify.vistas
+﻿package com.example.panchify.vistas
 
 import android.content.Intent
 import android.os.Bundle
@@ -33,6 +33,8 @@ class Friends : AppCompatActivity() {
             }
             true
         }
+
+        cargarIconoPerfil()
     }
 
     override fun onResume() {
@@ -41,3 +43,4 @@ class Friends : AppCompatActivity() {
         bottomNavigationView.menu.findItem(R.id.nav_friends)?.isChecked = true
     }
 }
+

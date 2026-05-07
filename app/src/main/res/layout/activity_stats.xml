@@ -21,16 +21,37 @@
             android:paddingTop="24dp"
             android:paddingBottom="100dp">
 
-            <TextView
+            <!-- TITULO CON ICONO DE PERFIL -->
+            <LinearLayout
                 android:id="@+id/txtTitle"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Estadísticas"
-                android:textColor="@color/spotify_green"
-                android:textSize="28sp"
-                android:textStyle="bold"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/imgProfileIcon"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="16dp"
+                    android:scaleType="centerCrop"
+                    android:src="@android:drawable/sym_def_app_icon"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Estadisticas"
+                    android:textColor="@color/spotify_green"
+                    android:textSize="28sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <GridLayout
                 android:id="@+id/gridStats"
@@ -576,3 +597,4 @@
         app:itemTextAppearanceInactive="@style/BottomNavText.Inactive"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

@@ -38,47 +38,22 @@ class Home : AppCompatActivity() {
 
     private lateinit var recyclerTopTracks: RecyclerView
     private var mSpotifyAppRemote: SpotifyAppRemote? = null
+    private lateinit var drawerLayout: androidx.drawerlayout.widget.DrawerLayout
 
     private val CLIENT_ID = "7169289ba7de4350b0ef5105ace1e25f"
     private val REDIRECT_URI = "panchify://callback"
 
-    private fun conectarAppRemote() {
-
-        val connectionParams = ConnectionParams.Builder(CLIENT_ID)
-            .setRedirectUri(REDIRECT_URI)
-            .showAuthView(false) // ponerlo en flase para que salga la autorizacion y que los botones y canciones se actualicen automaticamente a tiempo real
-            .build()
-
-        SpotifyAppRemote.connect(this, connectionParams, object : Connector.ConnectionListener {
-            override fun onConnected(appRemote: SpotifyAppRemote) {
-                mSpotifyAppRemote = appRemote
-                Log.d("Home", "Conectado a Spotify")
-
-                cambioCancion();
-            }
-
-            override fun onFailure(throwable: Throwable) {
-                Log.e("Home", "Error al conectar a Spotify", throwable)
-                if (throwable is com.spotify.android.appremote.api.error.UserNotAuthorizedException ||
-                    throwable.message?.contains("Explicit user authorization is required") == true) {
-                    
-                    android.widget.Toast.makeText(this@Home, "Forzando pantalla de permisos...", android.widget.Toast.LENGTH_SHORT).show()
-                    
-                    val request = com.spotify.sdk.android.auth.AuthorizationRequest.Builder(
-                        CLIENT_ID, com.spotify.sdk.android.auth.AuthorizationResponse.Type.TOKEN, REDIRECT_URI
-                    ).setScopes(arrayOf("app-remote-control")).build()
-                    
-                    com.spotify.sdk.android.auth.AuthorizationClient.openLoginActivity(this@Home, 1337, request)
-                } else {
-                    android.widget.Toast.makeText(this@Home, "ERROR: ${throwable.message}", android.widget.Toast.LENGTH_LONG).show()
-                }
-            }
-        })
-    }
-
     override fun onStart() {
         super.onStart()
         conectarAppRemote()
+    }
+
+    private fun conectarAppRemote() {
+        com.example.panchify.api.SpotifyRemoteManager.connect(this) { remote ->
+            mSpotifyAppRemote = remote
+            cambioCancion()
+        }
+        // Nota: para manejar el login explícito si falla, mantenemos la lógica pero delegamos el éxito al manager
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
@@ -97,6 +72,40 @@ class Home : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
+        
+        drawerLayout = findViewById(R.id.drawer_layout)
+        val navView = findViewById<com.google.android.material.navigation.NavigationView>(R.id.nav_view)
+
+        findViewById<android.widget.ImageView>(R.id.imgHomeProfile).setOnClickListener {
+            drawerLayout.openDrawer(androidx.core.view.GravityCompat.START)
+        }
+
+        navView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_profile -> {
+                    startActivity(Intent(this, Profile::class.java))
+                }
+                R.id.nav_privacy -> {
+                    android.widget.Toast.makeText(this, "Política de Privacidad", android.widget.Toast.LENGTH_SHORT).show()
+                }
+                R.id.nav_logout -> {
+                    val sessionManager = SessionManager(this)
+                    sessionManager.clearSession()
+                    mSpotifyAppRemote?.let { SpotifyAppRemote.disconnect(it) }
+                    
+                    val browserIntent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://accounts.spotify.com/logout"))
+                    startActivity(browserIntent)
+                    
+                    val loginIntent = Intent(this, Login::class.java)
+                    loginIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(loginIntent)
+                    finish()
+                }
+            }
+            drawerLayout.closeDrawer(androidx.core.view.GravityCompat.START)
+            true
+        }
+
         // Setup RecyclerView
         recyclerTopTracks = findViewById(R.id.recyclerTopTracks)
         recyclerTopTracks.layoutManager = LinearLayoutManager(this)
@@ -106,6 +115,7 @@ class Home : AppCompatActivity() {
        configurarBotonesReproduccion()
        cargarTarjetasExplorar()
        configurarClicksTarjetas()
+       cargarPerfilUsuario()
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
@@ -341,6 +351,50 @@ class Home : AppCompatActivity() {
         val bottomNavigationView = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.menu.findItem(R.id.nav_home)?.isChecked = true
         cargarEscuchandoAhora()
+        cargarPerfilUsuario()
+    }
+
+    private fun cargarPerfilUsuario() {
+        val token = SessionManager(this).getAccessToken() ?: return
+
+        RetrofitClient.spotifyApiService.getProfile("Bearer $token")
+            .enqueue(object : Callback<com.example.panchify.modelos.UserProfileResponse> {
+                override fun onResponse(
+                    call: Call<com.example.panchify.modelos.UserProfileResponse>,
+                    response: Response<com.example.panchify.modelos.UserProfileResponse>
+                ) {
+                    if (response.isSuccessful && response.body() != null) {
+                        val profile = response.body()!!
+                        val imgUrl = profile.images?.firstOrNull()?.url
+                        
+                        val navView = findViewById<com.google.android.material.navigation.NavigationView>(R.id.nav_view)
+                        val headerView = navView.getHeaderView(0)
+                        val navHeaderName = headerView.findViewById<android.widget.TextView>(R.id.txtNavHeaderName)
+                        val navHeaderImage = headerView.findViewById<android.widget.ImageView>(R.id.imgNavHeaderProfile)
+                        
+                        val prefs = getSharedPreferences("panchify_profile", android.content.Context.MODE_PRIVATE)
+                        val customName = prefs.getString("custom_name", profile.display_name ?: "Usuario")
+                        navHeaderName.text = customName
+
+                        val imgHomeProfile = findViewById<android.widget.ImageView>(R.id.imgHomeProfile)
+
+                        if (imgUrl != null) {
+                            com.bumptech.glide.Glide.with(this@Home)
+                                .load(imgUrl)
+                                .circleCrop()
+                                .into(imgHomeProfile)
+                            
+                            com.bumptech.glide.Glide.with(this@Home)
+                                .load(imgUrl)
+                                .circleCrop()
+                                .into(navHeaderImage)
+                        }
+                    }
+                }
+
+                override fun onFailure(call: Call<com.example.panchify.modelos.UserProfileResponse>, t: Throwable) {
+                }
+            })
     }
 
     private fun configurarBotonesReproduccion() {
@@ -411,9 +465,7 @@ class Home : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        // Desconectar al salir para ahorrar batería
-        mSpotifyAppRemote?.let {
-            SpotifyAppRemote.disconnect(it)
-        }
+        // No desconectamos aquí para que la música y la conexión siga activa
+        // al cambiar a otras pantallas como Songs.kt
     }
 }

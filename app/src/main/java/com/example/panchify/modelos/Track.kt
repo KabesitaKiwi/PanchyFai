@@ -6,7 +6,8 @@ data class Track(
     val artists: List<Artist>,
     val album: Album,
     val duration_ms: Long = 0,
-    val popularity: Int = 0
+    val popularity: Int = 0,
+    val preview_url: String? = null
 )
 
 data class Artist(

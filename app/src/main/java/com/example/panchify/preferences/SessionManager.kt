@@ -37,5 +37,9 @@ class SessionManager(context: Context) {
         val token = getAccessToken()
         return token != null && !isTokenExpired()
     }
+
+    fun clearSession() {
+        prefs.edit().clear().apply()
+    }
 }
 

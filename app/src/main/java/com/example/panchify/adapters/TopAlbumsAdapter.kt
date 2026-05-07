@@ -41,7 +41,29 @@ class TopAlbumsAdapter(tracks: List<Track>) :
                 .load(track.album.images[0].url)
                 .into(holder.imgAlbum)
         }
+
+        // Listener para reproducir vista previa de la canción (el primer track del álbum)
+        holder.imgAlbum.setOnClickListener {
+            AudioPlayer.playOrPause(
+                trackId = track.id,
+                previewUrl = track.preview_url,
+                onStart = {
+                    android.widget.Toast.makeText(holder.itemView.context, "Reproduciendo canción...", android.widget.Toast.LENGTH_SHORT).show()
+                },
+                onStop = {
+                    // Opcional
+                },
+                onError = {
+                    android.widget.Toast.makeText(holder.itemView.context, "No se pudo reproducir la canción", android.widget.Toast.LENGTH_SHORT).show()
+                }
+            )
+        }
     }
 
     override fun getItemCount(): Int = albums.size
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        AudioPlayer.release()
+    }
 }

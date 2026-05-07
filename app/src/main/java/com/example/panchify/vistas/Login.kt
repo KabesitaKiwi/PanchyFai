@@ -58,6 +58,7 @@ class Login : AppCompatActivity() {
             .appendQueryParameter("response_type", "code")
             .appendQueryParameter("redirect_uri", SpotifyConfig.REDIRECT_URI)
             .appendQueryParameter("scope", permisos)
+            .appendQueryParameter("show_dialog", "true")
             .build()
 
         startActivity(Intent(Intent.ACTION_VIEW, uriAutorizacion))
