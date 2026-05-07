@@ -3,6 +3,7 @@ package com.example.panchify.vistas
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -12,6 +13,9 @@ import com.example.panchify.R
 import com.example.panchify.api.RetrofitClient
 import com.example.panchify.config.SpotifyConfig
 import com.example.panchify.modelos.TokenResponse
+import com.example.panchify.modelos.UserProfileResponse
+import com.example.panchify.modelos.UsuarioRequest
+import com.example.panchify.modelos.UsuarioResponse
 import com.example.panchify.preferences.SessionManager
 import retrofit2.Call
 import retrofit2.Callback
@@ -47,8 +51,6 @@ class Login : AppCompatActivity() {
     /**
      * Abre el navegador con el login de Spotify
      */
-
-
     private fun iniciarSesionSpotify() {
         val permisos = SpotifyConfig.SCOPES.joinToString(" ")
 
@@ -112,14 +114,64 @@ class Login : AppCompatActivity() {
                         token.expires_in
                     )
 
-                    irAPantallaPrincipal()
+                    // Tras guardar el token, registrar usuario en nuestro backend
+                    registrarUsuarioEnBackend(token.access_token)
                 }
             }
 
             override fun onFailure(call: Call<TokenResponse>, t: Throwable) {
-                // Error de red (puedes loguearlo o mostrar mensaje)
+                Log.e("Login", "Error al obtener token", t)
             }
         })
+    }
+
+    /**
+     * Obtiene el perfil de Spotify y lo registra en nuestro backend MySQL
+     */
+    private fun registrarUsuarioEnBackend(accessToken: String) {
+        RetrofitClient.spotifyApiService.getProfile("Bearer $accessToken")
+            .enqueue(object : Callback<UserProfileResponse> {
+                override fun onResponse(
+                    call: Call<UserProfileResponse>,
+                    response: Response<UserProfileResponse>
+                ) {
+                    if (response.isSuccessful && response.body() != null) {
+                        val perfil = response.body()!!
+                        val sessionManager = SessionManager(this@Login)
+
+                        // Guardar spotifyId en sesión local
+                        sessionManager.saveSpotifyId(perfil.id)
+
+                        // Registrar en backend MySQL (usando JDBC de Java en hilo secundario)
+                        Thread {
+                            val usuario = com.example.panchify.db.UsuarioDao.registrarORecuperarUsuario(
+                                perfil.id,
+                                perfil.display_name,
+                                null,
+                                perfil.images?.firstOrNull()?.url
+                            )
+                            
+                            runOnUiThread {
+                                if (usuario != null) {
+                                    sessionManager.saveUserId(usuario.idUsuario)
+                                    Log.d("Login", "Usuario registrado en BD: id=${usuario.idUsuario}")
+                                } else {
+                                    Log.e("Login", "Error registrando usuario en BD")
+                                }
+                                irAPantallaPrincipal()
+                            }
+                        }.start()
+                    } else {
+                        // Si falla obtener perfil de Spotify, ir a Home igualmente
+                        irAPantallaPrincipal()
+                    }
+                }
+
+                override fun onFailure(call: Call<UserProfileResponse>, t: Throwable) {
+                    Log.e("Login", "Error obteniendo perfil Spotify", t)
+                    irAPantallaPrincipal()
+                }
+            })
     }
 
     /**

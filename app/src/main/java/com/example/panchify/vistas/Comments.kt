@@ -1,22 +1,32 @@
 package com.example.panchify.vistas
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
+import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.panchify.R
+import com.example.panchify.api.RetrofitClient
+import com.example.panchify.modelos.ComentarioRequest
+import com.example.panchify.modelos.ComentarioResponse
+import com.example.panchify.preferences.SessionManager
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputEditText
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class Comments : AppCompatActivity() {
+
+    private lateinit var recycler: RecyclerView
+    private lateinit var adapter: ComentariosAdapter
+    private lateinit var campoComentario: TextInputEditText
+    private lateinit var btnSend: MaterialButton
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(R.layout.activity_comments)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
 
         val bottomNavigationView = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.setOnItemSelectedListener { menuItem ->
@@ -37,12 +47,87 @@ class Comments : AppCompatActivity() {
             true
         }
 
+        // Configurar RecyclerView
+        recycler = findViewById(R.id.listaComentarios)
+        recycler.layoutManager = LinearLayoutManager(this)
+        adapter = ComentariosAdapter(emptyList())
+        recycler.adapter = adapter
+
+        // Campo de texto y botón enviar
+        campoComentario = findViewById(R.id.campoComentarios)
+        btnSend = findViewById(R.id.btnSend)
+
+        btnSend.setOnClickListener {
+            enviarComentario()
+        }
+
         cargarIconoPerfil()
+        cargarComentarios()
     }
 
     override fun onResume() {
         super.onResume()
         val bottomNavigationView = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.menu.findItem(R.id.nav_comments)?.isChecked = true
+    }
+
+    /**
+     * Carga los comentarios usando JDBC de Java en hilo secundario
+     */
+    private fun cargarComentarios() {
+        Thread {
+            val comentarios = com.example.panchify.db.ComentarioDao.listarComentarios()
+            
+            runOnUiThread {
+                adapter = ComentariosAdapter(comentarios)
+                recycler.adapter = adapter
+
+                if (comentarios.isEmpty()) {
+                    Toast.makeText(this@Comments, "No hay comentarios aún. ¡Sé el primero!", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }.start()
+    }
+
+    /**
+     * Envía un nuevo comentario al backend
+     */
+    private fun enviarComentario() {
+        val texto = campoComentario.text?.toString()?.trim() ?: ""
+        if (texto.isEmpty()) {
+            Toast.makeText(this, "Escribe algo primero", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val sessionManager = SessionManager(this)
+        val idUsuario = sessionManager.getUserId()
+        if (idUsuario == null) {
+            Toast.makeText(this, "Error: usuario no registrado", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        btnSend.isEnabled = false
+
+        // Insertar comentario usando JDBC en hilo secundario
+        Thread {
+            val resultado = com.example.panchify.db.ComentarioDao.crearComentario(
+                idUsuario,
+                "general",
+                texto,
+                null,
+                "General"
+            )
+            
+            runOnUiThread {
+                btnSend.isEnabled = true
+                if (resultado != null) {
+                    campoComentario.text?.clear()
+                    cargarComentarios() // Recargar lista
+                    Toast.makeText(this@Comments, "Comentario publicado 🎵", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@Comments, "Error al publicar", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }.start()
     }
 }

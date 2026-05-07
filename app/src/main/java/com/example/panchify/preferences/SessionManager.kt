@@ -41,5 +41,23 @@ class SessionManager(context: Context) {
     fun clearSession() {
         prefs.edit().clear().apply()
     }
-}
 
+    // ── Usuario MySQL (backend Hostinger) ────────────────────────────────────
+
+    fun saveUserId(idUsuario: Int) {
+        prefs.edit().putInt("id_usuario_mysql", idUsuario).apply()
+    }
+
+    fun getUserId(): Int? {
+        val id = prefs.getInt("id_usuario_mysql", -1)
+        return if (id == -1) null else id
+    }
+
+    fun saveSpotifyId(spotifyId: String) {
+        prefs.edit().putString("spotify_id", spotifyId).apply()
+    }
+
+    fun getSpotifyId(): String? {
+        return prefs.getString("spotify_id", null)
+    }
+}

@@ -2,22 +2,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_home"
-        android:icon="@drawable/ic_launcher_foreground"
+        android:icon="@drawable/ic_nav_home"
         android:title="Inicio" />
     <item
         android:id="@+id/nav_songs"
-        android:icon="@drawable/ic_launcher_foreground"
+        android:icon="@drawable/ic_nav_songs"
         android:title="Canciones" />
     <item
         android:id="@+id/nav_stats"
-        android:icon="@drawable/ic_launcher_foreground"
+        android:icon="@drawable/ic_nav_stats"
         android:title="Estadísticas" />
     <item
         android:id="@+id/nav_comments"
-        android:icon="@drawable/ic_launcher_foreground"
+        android:icon="@drawable/ic_nav_comments"
         android:title="Comentarios" />
     <item
         android:id="@+id/nav_friends"
-        android:icon="@drawable/ic_launcher_foreground"
+        android:icon="@drawable/ic_nav_friends"
         android:title="Amigos" />
 </menu>
