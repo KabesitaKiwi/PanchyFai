@@ -59,7 +59,7 @@ public class ComentarioDao {
         return lista;
     }
 
-    public static ComentarioResponse crearComentario(int idUsuario, String idCancion, String texto, Integer puntuacion, String tituloCancion, String imagenUrl, String previewUrl) {
+    public static ComentarioResponse crearComentario(int idUsuario, String idCancion, String texto, Integer puntuacion, String tituloCancion, String imagenUrl, String previewUrl, String album, Long duracionMs, String anio, String spotifyUrl) {
         Connection conn = DatabaseConnection.getConnection();
         if (conn == null) return null;
 
@@ -67,6 +67,10 @@ public class ComentarioDao {
             // Migración de base de datos segura
             try { conn.createStatement().execute("ALTER TABLE Cancion ADD COLUMN imagenUrl VARCHAR(255)"); } catch (Exception e) {}
             try { conn.createStatement().execute("ALTER TABLE Cancion ADD COLUMN previewUrl VARCHAR(255)"); } catch (Exception e) {}
+            try { conn.createStatement().execute("ALTER TABLE Cancion ADD COLUMN album VARCHAR(255)"); } catch (Exception e) {}
+            try { conn.createStatement().execute("ALTER TABLE Cancion ADD COLUMN duracionMs BIGINT"); } catch (Exception e) {}
+            try { conn.createStatement().execute("ALTER TABLE Cancion ADD COLUMN anio VARCHAR(10)"); } catch (Exception e) {}
+            try { conn.createStatement().execute("ALTER TABLE Cancion ADD COLUMN spotifyUrl VARCHAR(255)"); } catch (Exception e) {}
             // Asegurarnos de que la canción exista
             String checkCancion = "SELECT idCancion FROM Cancion WHERE idCancion = ?";
             PreparedStatement checkStmt = conn.prepareStatement(checkCancion);
@@ -74,12 +78,20 @@ public class ComentarioDao {
             ResultSet checkRs = checkStmt.executeQuery();
             
             if (!checkRs.next()) {
-                String insertCancion = "INSERT INTO Cancion (idCancion, titulo, imagenUrl, previewUrl) VALUES (?, ?, ?, ?)";
+                String insertCancion = "INSERT INTO Cancion (idCancion, titulo, imagenUrl, previewUrl, album, duracionMs, anio, spotifyUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                 PreparedStatement insertCancionStmt = conn.prepareStatement(insertCancion);
                 insertCancionStmt.setString(1, idCancion);
                 insertCancionStmt.setString(2, tituloCancion != null ? tituloCancion : "Desconocido");
                 insertCancionStmt.setString(3, imagenUrl);
                 insertCancionStmt.setString(4, previewUrl);
+                insertCancionStmt.setString(5, album);
+                if (duracionMs != null) {
+                    insertCancionStmt.setLong(6, duracionMs);
+                } else {
+                    insertCancionStmt.setNull(6, java.sql.Types.BIGINT);
+                }
+                insertCancionStmt.setString(7, anio);
+                insertCancionStmt.setString(8, spotifyUrl);
                 insertCancionStmt.executeUpdate();
             }
 

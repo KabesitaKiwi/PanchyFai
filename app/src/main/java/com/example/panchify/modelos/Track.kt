@@ -7,7 +7,8 @@ data class Track(
     val album: Album,
     val duration_ms: Long = 0,
     val popularity: Int = 0,
-    val preview_url: String? = null
+    val preview_url: String? = null,
+    val external_urls: ExternalUrls? = null
 )
 
 data class Artist(
@@ -17,9 +18,14 @@ data class Artist(
 
 data class Album(
     val name: String,
-    val images: List<Image>
+    val images: List<Image>,
+    val release_date: String? = null
 )
 
 data class Image(
     val url: String
+)
+
+data class ExternalUrls(
+    val spotify: String? = null
 )

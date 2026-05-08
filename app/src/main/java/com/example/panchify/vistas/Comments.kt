@@ -44,6 +44,10 @@ class Comments : AppCompatActivity() {
     private var selectedTrackName: String? = null
     private var selectedTrackImage: String? = null
     private var selectedTrackPreview: String? = null
+    private var selectedTrackAlbum: String? = null
+    private var selectedTrackDurationMs: Long? = null
+    private var selectedTrackYear: String? = null
+    private var selectedTrackSpotifyUrl: String? = null
     private var globalComments: List<ComentarioResponse> = emptyList()
     
     private val searchHandler = Handler(Looper.getMainLooper())
@@ -171,6 +175,10 @@ class Comments : AppCompatActivity() {
         selectedTrackName = track.name
         selectedTrackImage = track.album.images.firstOrNull()?.url
         selectedTrackPreview = track.preview_url
+        selectedTrackAlbum = track.album.name
+        selectedTrackDurationMs = track.duration_ms
+        selectedTrackYear = track.album.release_date?.take(4) // Extract year YYYY
+        selectedTrackSpotifyUrl = track.external_urls?.spotify
         
         layoutCancionSeleccionada.visibility = View.VISIBLE
         searchView.visibility = View.GONE
@@ -197,6 +205,10 @@ class Comments : AppCompatActivity() {
         selectedTrackName = null
         selectedTrackImage = null
         selectedTrackPreview = null
+        selectedTrackAlbum = null
+        selectedTrackDurationMs = null
+        selectedTrackYear = null
+        selectedTrackSpotifyUrl = null
         
         layoutCancionSeleccionada.visibility = View.GONE
         searchView.visibility = View.VISIBLE
@@ -251,7 +263,11 @@ class Comments : AppCompatActivity() {
                 null,
                 nombreCancion,
                 selectedTrackImage,
-                selectedTrackPreview
+                selectedTrackPreview,
+                selectedTrackAlbum,
+                selectedTrackDurationMs,
+                selectedTrackYear,
+                selectedTrackSpotifyUrl
             )
             
             runOnUiThread {
