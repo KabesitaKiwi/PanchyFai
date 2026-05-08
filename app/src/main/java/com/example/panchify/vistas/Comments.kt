@@ -1,14 +1,23 @@
 package com.example.panchify.vistas
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.panchify.R
+import com.example.panchify.adapters.SearchTracksAdapter
 import com.example.panchify.api.RetrofitClient
-import com.example.panchify.modelos.ComentarioRequest
+import com.example.panchify.modelos.SearchResponse
+import com.example.panchify.modelos.Track
 import com.example.panchify.modelos.ComentarioResponse
 import com.example.panchify.preferences.SessionManager
 import com.google.android.material.button.MaterialButton
@@ -23,6 +32,22 @@ class Comments : AppCompatActivity() {
     private lateinit var adapter: ComentariosAdapter
     private lateinit var campoComentario: TextInputEditText
     private lateinit var btnSend: MaterialButton
+
+    private lateinit var searchView: SearchView
+    private lateinit var layoutCancionSeleccionada: View
+    private lateinit var imgSelectedTrack: ImageView
+    private lateinit var txtSelectedTrackName: TextView
+    private lateinit var txtSelectedArtistName: TextView
+    private lateinit var btnCambiarCancion: ImageView
+
+    private var selectedTrackId: String? = null
+    private var selectedTrackName: String? = null
+    private var selectedTrackImage: String? = null
+    private var selectedTrackPreview: String? = null
+    private var globalComments: List<ComentarioResponse> = emptyList()
+    
+    private val searchHandler = Handler(Looper.getMainLooper())
+    private var searchRunnable: Runnable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,22 +72,136 @@ class Comments : AppCompatActivity() {
             true
         }
 
-        // Configurar RecyclerView
         recycler = findViewById(R.id.listaComentarios)
         recycler.layoutManager = LinearLayoutManager(this)
         adapter = ComentariosAdapter(emptyList())
         recycler.adapter = adapter
 
-        // Campo de texto y botón enviar
         campoComentario = findViewById(R.id.campoComentarios)
         btnSend = findViewById(R.id.btnSend)
+        
+        searchView = findViewById(R.id.searchViewCanciones)
+        layoutCancionSeleccionada = findViewById(R.id.layoutCancionSeleccionada)
+        imgSelectedTrack = findViewById(R.id.imgSelectedTrack)
+        txtSelectedTrackName = findViewById(R.id.txtSelectedTrackName)
+        txtSelectedArtistName = findViewById(R.id.txtSelectedArtistName)
+        btnCambiarCancion = findViewById(R.id.btnCambiarCancion)
 
         btnSend.setOnClickListener {
             enviarComentario()
         }
 
+        btnCambiarCancion.setOnClickListener {
+            clearSelectedTrack()
+        }
+
+        setupSearchView()
+
         cargarIconoPerfil()
+        updateInputState()
+        
+        // Cargar todos los comentarios al inicio
         cargarComentarios()
+    }
+
+    private fun updateInputState() {
+        val hasTrack = selectedTrackId != null
+        campoComentario.isEnabled = hasTrack
+        btnSend.isEnabled = hasTrack
+        if (!hasTrack) {
+            campoComentario.hint = "Selecciona una canción primero..."
+        } else {
+            campoComentario.hint = "Escribe un comentario..."
+        }
+    }
+
+    private fun setupSearchView() {
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if (!query.isNullOrEmpty()) {
+                    searchTracks(query)
+                }
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                searchRunnable?.let { searchHandler.removeCallbacks(it) }
+
+                if (newText.isNullOrEmpty()) {
+                    // Restaurar feed global
+                    adapter = ComentariosAdapter(globalComments)
+                    recycler.adapter = adapter
+                } else if (newText.length >= 2) {
+                    searchRunnable = Runnable {
+                        searchTracks(newText)
+                    }
+                    searchHandler.postDelayed(searchRunnable!!, 500)
+                }
+                return true
+            }
+        })
+    }
+
+    private fun searchTracks(query: String) {
+        val sessionManager = SessionManager(this)
+        val token = sessionManager.getAccessToken() ?: return
+
+        RetrofitClient.spotifyApiService.searchTracks(
+            authHeader = "Bearer $token",
+            query = query
+        ).enqueue(object : Callback<SearchResponse> {
+            override fun onResponse(call: Call<SearchResponse>, response: Response<SearchResponse>) {
+                if (response.isSuccessful && response.body() != null) {
+                    val tracks = response.body()!!.tracks.items
+                    val searchAdapter = SearchTracksAdapter(tracks) { track ->
+                        onTrackSelected(track)
+                    }
+                    recycler.adapter = searchAdapter
+                }
+            }
+
+            override fun onFailure(call: Call<SearchResponse>, t: Throwable) {
+                Toast.makeText(this@Comments, "Error buscando canciones", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun onTrackSelected(track: Track) {
+        selectedTrackId = track.id
+        selectedTrackName = track.name
+        selectedTrackImage = track.album.images.firstOrNull()?.url
+        selectedTrackPreview = track.preview_url
+        
+        layoutCancionSeleccionada.visibility = View.VISIBLE
+        searchView.visibility = View.GONE
+        
+        txtSelectedTrackName.text = track.name
+        txtSelectedArtistName.text = track.artists.joinToString(", ") { it.name }
+        
+        if (track.album.images.isNotEmpty()) {
+            Glide.with(this)
+                .load(track.album.images[0].url)
+                .into(imgSelectedTrack)
+        }
+        
+        updateInputState()
+        searchView.setQuery("", false)
+        
+        // Restaurar feed global de inmediato
+        adapter = ComentariosAdapter(globalComments)
+        recycler.adapter = adapter
+    }
+
+    private fun clearSelectedTrack() {
+        selectedTrackId = null
+        selectedTrackName = null
+        selectedTrackImage = null
+        selectedTrackPreview = null
+        
+        layoutCancionSeleccionada.visibility = View.GONE
+        searchView.visibility = View.VISIBLE
+        
+        updateInputState()
     }
 
     override fun onResume() {
@@ -71,33 +210,29 @@ class Comments : AppCompatActivity() {
         bottomNavigationView.menu.findItem(R.id.nav_comments)?.isChecked = true
     }
 
-    /**
-     * Carga los comentarios usando JDBC de Java en hilo secundario
-     */
     private fun cargarComentarios() {
         Thread {
             val comentarios = com.example.panchify.db.ComentarioDao.listarComentarios()
             
             runOnUiThread {
-                adapter = ComentariosAdapter(comentarios)
-                recycler.adapter = adapter
-
-                if (comentarios.isEmpty()) {
-                    Toast.makeText(this@Comments, "No hay comentarios aún. ¡Sé el primero!", Toast.LENGTH_SHORT).show()
+                globalComments = comentarios
+                if (searchView.query.isNullOrEmpty()) {
+                    adapter = ComentariosAdapter(globalComments)
+                    recycler.adapter = adapter
                 }
             }
         }.start()
     }
 
-    /**
-     * Envía un nuevo comentario al backend
-     */
     private fun enviarComentario() {
         val texto = campoComentario.text?.toString()?.trim() ?: ""
         if (texto.isEmpty()) {
             Toast.makeText(this, "Escribe algo primero", Toast.LENGTH_SHORT).show()
             return
         }
+
+        val idCancion = selectedTrackId ?: "general"
+        val nombreCancion = selectedTrackName ?: "General"
 
         val sessionManager = SessionManager(this)
         val idUsuario = sessionManager.getUserId()
@@ -108,21 +243,23 @@ class Comments : AppCompatActivity() {
 
         btnSend.isEnabled = false
 
-        // Insertar comentario usando JDBC en hilo secundario
         Thread {
             val resultado = com.example.panchify.db.ComentarioDao.crearComentario(
                 idUsuario,
-                "general",
+                idCancion,
                 texto,
                 null,
-                "General"
+                nombreCancion,
+                selectedTrackImage,
+                selectedTrackPreview
             )
             
             runOnUiThread {
                 btnSend.isEnabled = true
                 if (resultado != null) {
                     campoComentario.text?.clear()
-                    cargarComentarios() // Recargar lista
+                    clearSelectedTrack()
+                    cargarComentarios()
                     Toast.makeText(this@Comments, "Comentario publicado 🎵", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(this@Comments, "Error al publicar", Toast.LENGTH_SHORT).show()

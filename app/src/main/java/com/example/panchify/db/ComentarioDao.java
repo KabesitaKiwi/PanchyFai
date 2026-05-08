@@ -18,7 +18,11 @@ public class ComentarioDao {
         if (conn == null) return lista;
 
         try {
-            String sql = "SELECT c.*, u.nombreUsuario, u.fotoPerfil, ca.titulo AS tituloCancion " +
+            // Migración de base de datos segura
+            try { conn.createStatement().execute("ALTER TABLE Cancion ADD COLUMN imagenUrl VARCHAR(255)"); } catch (Exception e) {}
+            try { conn.createStatement().execute("ALTER TABLE Cancion ADD COLUMN previewUrl VARCHAR(255)"); } catch (Exception e) {}
+
+            String sql = "SELECT c.*, u.nombreUsuario, u.fotoPerfil, ca.titulo AS tituloCancion, ca.imagenUrl, ca.previewUrl " +
                          "FROM Comentario c " +
                          "JOIN Usuario u ON c.idUsuario = u.idUsuario " +
                          "LEFT JOIN Cancion ca ON c.idCancion = ca.idCancion " +
@@ -37,7 +41,9 @@ public class ComentarioDao {
                         rs.getString("idCancion"),
                         rs.getString("nombreUsuario"),
                         rs.getString("fotoPerfil"),
-                        rs.getString("tituloCancion")
+                        rs.getString("tituloCancion"),
+                        rs.getString("imagenUrl"),
+                        rs.getString("previewUrl")
                 );
                 lista.add(comentario);
             }
@@ -53,11 +59,14 @@ public class ComentarioDao {
         return lista;
     }
 
-    public static ComentarioResponse crearComentario(int idUsuario, String idCancion, String texto, Integer puntuacion, String tituloCancion) {
+    public static ComentarioResponse crearComentario(int idUsuario, String idCancion, String texto, Integer puntuacion, String tituloCancion, String imagenUrl, String previewUrl) {
         Connection conn = DatabaseConnection.getConnection();
         if (conn == null) return null;
 
         try {
+            // Migración de base de datos segura
+            try { conn.createStatement().execute("ALTER TABLE Cancion ADD COLUMN imagenUrl VARCHAR(255)"); } catch (Exception e) {}
+            try { conn.createStatement().execute("ALTER TABLE Cancion ADD COLUMN previewUrl VARCHAR(255)"); } catch (Exception e) {}
             // Asegurarnos de que la canción exista
             String checkCancion = "SELECT idCancion FROM Cancion WHERE idCancion = ?";
             PreparedStatement checkStmt = conn.prepareStatement(checkCancion);
@@ -65,10 +74,12 @@ public class ComentarioDao {
             ResultSet checkRs = checkStmt.executeQuery();
             
             if (!checkRs.next()) {
-                String insertCancion = "INSERT INTO Cancion (idCancion, titulo) VALUES (?, ?)";
+                String insertCancion = "INSERT INTO Cancion (idCancion, titulo, imagenUrl, previewUrl) VALUES (?, ?, ?, ?)";
                 PreparedStatement insertCancionStmt = conn.prepareStatement(insertCancion);
                 insertCancionStmt.setString(1, idCancion);
                 insertCancionStmt.setString(2, tituloCancion != null ? tituloCancion : "Desconocido");
+                insertCancionStmt.setString(3, imagenUrl);
+                insertCancionStmt.setString(4, previewUrl);
                 insertCancionStmt.executeUpdate();
             }
 
@@ -88,7 +99,7 @@ public class ComentarioDao {
             // Retornar un comentario básico sin joins complejos, 
             // aunque se puede volver a hacer SELECT si se necesita los datos de usuario al instante.
             return new ComentarioResponse(
-                    0, texto, puntuacion, "Ahora", idUsuario, idCancion, "Tú", null, tituloCancion
+                    0, texto, puntuacion, "Ahora", idUsuario, idCancion, "Tú", null, tituloCancion, imagenUrl, previewUrl
             );
 
         } catch (SQLException e) {

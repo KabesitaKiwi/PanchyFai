@@ -7,7 +7,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.example.panchify.R
+import com.example.panchify.adapters.AudioPlayer
 import com.example.panchify.modelos.ComentarioResponse
 
 class ComentariosAdapter(private val lista: List<ComentarioResponse>) :
@@ -22,6 +25,7 @@ class ComentariosAdapter(private val lista: List<ComentarioResponse>) :
         val txtReplyCount: TextView = view.findViewById(R.id.txtReplyCount)
         val txtFireCount: TextView = view.findViewById(R.id.txtFireCount)
         val layoutSongRef: View = view.findViewById(R.id.layoutSongRef)
+        val imgSongCover: ImageView = view.findViewById(R.id.imgSongCover)
         val txtSongRef: TextView = view.findViewById(R.id.txtSongRef)
         val txtMusicEmoji: TextView = view.findViewById(R.id.txtMusicEmoji)
     }
@@ -57,6 +61,32 @@ class ComentariosAdapter(private val lista: List<ComentarioResponse>) :
         if (!tituloCancion.isNullOrEmpty() && tituloCancion != "General") {
             holder.layoutSongRef.visibility = View.VISIBLE
             holder.txtSongRef.text = tituloCancion
+            
+            // Cargar portada si existe
+            if (!comentario.imagenCancion.isNullOrEmpty()) {
+                Glide.with(holder.itemView.context)
+                    .load(comentario.imagenCancion)
+                    .transform(CenterCrop(), RoundedCorners(8))
+                    .into(holder.imgSongCover)
+            } else {
+                holder.imgSongCover.setImageResource(android.R.drawable.ic_media_play)
+            }
+
+            // Reproducir preview de la canción al hacer clic
+            holder.layoutSongRef.setOnClickListener {
+                AudioPlayer.playOrPause(
+                    trackId = comentario.idCancion,
+                    previewUrl = comentario.previewUrl,
+                    onStart = {
+                        android.widget.Toast.makeText(holder.itemView.context, "Reproduciendo...", android.widget.Toast.LENGTH_SHORT).show()
+                    },
+                    onStop = {},
+                    onError = {
+                        android.widget.Toast.makeText(holder.itemView.context, "No se pudo reproducir la canción", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                )
+            }
+
         } else {
             holder.layoutSongRef.visibility = View.GONE
         }

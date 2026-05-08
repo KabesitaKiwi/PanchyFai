@@ -52,4 +52,12 @@ interface SpotifyApiService {
     fun getProfile(
         @Header("Authorization") token: String
     ): Call<com.example.panchify.modelos.UserProfileResponse>
+
+    @GET("v1/search")
+    fun searchTracks(
+        @Header("Authorization") authHeader: String,
+        @Query("q") query: String,
+        @Query("type") type: String = "track",
+        @Query("limit") limit: Int = 20
+    ): Call<com.example.panchify.modelos.SearchResponse>
 }

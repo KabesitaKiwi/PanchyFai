@@ -10,8 +10,10 @@ public class ComentarioResponse {
     private String nombreUsuario;
     private String imagenPerfil;
     private String tituloCancion;
+    private String imagenCancion;
+    private String previewUrl;
 
-    public ComentarioResponse(int idComentario, String texto, Integer puntuacion, String fecha, int idUsuario, String idCancion, String nombreUsuario, String imagenPerfil, String tituloCancion) {
+    public ComentarioResponse(int idComentario, String texto, Integer puntuacion, String fecha, int idUsuario, String idCancion, String nombreUsuario, String imagenPerfil, String tituloCancion, String imagenCancion, String previewUrl) {
         this.idComentario = idComentario;
         this.texto = texto;
         this.puntuacion = puntuacion;
@@ -21,6 +23,8 @@ public class ComentarioResponse {
         this.nombreUsuario = nombreUsuario;
         this.imagenPerfil = imagenPerfil;
         this.tituloCancion = tituloCancion;
+        this.imagenCancion = imagenCancion;
+        this.previewUrl = previewUrl;
     }
 
     public int getIdComentario() { return idComentario; }
@@ -32,4 +36,6 @@ public class ComentarioResponse {
     public String getNombreUsuario() { return nombreUsuario; }
     public String getImagenPerfil() { return imagenPerfil; }
     public String getTituloCancion() { return tituloCancion; }
+    public String getImagenCancion() { return imagenCancion; }
+    public String getPreviewUrl() { return previewUrl; }
 }
