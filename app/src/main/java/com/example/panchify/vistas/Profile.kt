@@ -28,9 +28,20 @@ class Profile : AppCompatActivity() {
         val etCustomName = findViewById<TextInputEditText>(R.id.etCustomName)
         val btnSaveProfile = findViewById<Button>(R.id.btnSaveProfile)
 
-        val prefs = getSharedPreferences("panchify_profile", Context.MODE_PRIVATE)
-        val savedName = prefs.getString("custom_name", "Usuario Random")
-        etCustomName.setText(savedName)
+        val sessionManager = SessionManager(this)
+        val idUsuario = sessionManager.getUserId()
+
+        // Cargar nombre personalizado desde la base de datos MySQL en segundo plano
+        if (idUsuario != null) {
+            Thread {
+                val dbUser = com.example.panchify.db.UsuarioDao.obtenerUsuario(idUsuario)
+                runOnUiThread {
+                    if (dbUser != null && !dbUser.nombreUsuario.isNullOrEmpty()) {
+                        etCustomName.setText(dbUser.nombreUsuario)
+                    }
+                }
+            }.start()
+        }
 
         val token = SessionManager(this).getAccessToken()
         if (token != null) {
@@ -59,10 +70,23 @@ class Profile : AppCompatActivity() {
 
         btnSaveProfile.setOnClickListener {
             val newName = etCustomName.text.toString()
-            if (newName.isNotBlank()) {
-                prefs.edit().putString("custom_name", newName).apply()
-                Toast.makeText(this, "Nombre guardado correctamente", Toast.LENGTH_SHORT).show()
-                finish()
+            if (newName.isNotBlank() && idUsuario != null) {
+                btnSaveProfile.isEnabled = false
+                // Guardar en la base de datos MySQL en segundo plano
+                Thread {
+                    val exito = com.example.panchify.db.UsuarioDao.actualizarNombreUsuario(idUsuario, newName)
+                    runOnUiThread {
+                        btnSaveProfile.isEnabled = true
+                        if (exito) {
+                            Toast.makeText(this@Profile, "Nombre actualizado en la red", Toast.LENGTH_SHORT).show()
+                            finish()
+                        } else {
+                            Toast.makeText(this@Profile, "Error al actualizar", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }.start()
+            } else {
+                Toast.makeText(this, "Escribe un nombre válido", Toast.LENGTH_SHORT).show()
             }
         }
     }

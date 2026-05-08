@@ -18,7 +18,7 @@ public class ComentarioDao {
         if (conn == null) return lista;
 
         try {
-            String sql = "SELECT c.*, u.nombreUsuario, u.imagenPerfil, ca.titulo AS tituloCancion " +
+            String sql = "SELECT c.*, u.nombreUsuario, u.fotoPerfil, ca.titulo AS tituloCancion " +
                          "FROM Comentario c " +
                          "JOIN Usuario u ON c.idUsuario = u.idUsuario " +
                          "LEFT JOIN Cancion ca ON c.idCancion = ca.idCancion " +
@@ -36,7 +36,7 @@ public class ComentarioDao {
                         rs.getInt("idUsuario"),
                         rs.getString("idCancion"),
                         rs.getString("nombreUsuario"),
-                        rs.getString("imagenPerfil"),
+                        rs.getString("fotoPerfil"),
                         rs.getString("tituloCancion")
                 );
                 lista.add(comentario);

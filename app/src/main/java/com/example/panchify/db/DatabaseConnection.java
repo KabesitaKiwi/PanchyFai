@@ -9,7 +9,7 @@ public class DatabaseConnection {
     // =============================================
     // CAMBIA ESTOS VALORES POR LOS DE TU HOSTINGER
     // =============================================
-    private static final String HOST = "auth-db1794.hstgr.io"; 
+    private static final String HOST = "193.203.168.188"; 
     private static final String DB_NAME = "u933199268_Panchify";
     private static final String USER = "u933199268_PanchiUser";
     private static final String PASS = "Zamorachinchipe0?";

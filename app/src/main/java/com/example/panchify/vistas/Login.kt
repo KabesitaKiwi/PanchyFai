@@ -153,12 +153,19 @@ class Login : AppCompatActivity() {
                             
                             runOnUiThread {
                                 if (usuario != null) {
-                                    sessionManager.saveUserId(usuario.idUsuario)
-                                    Log.d("Login", "Usuario registrado en BD: id=${usuario.idUsuario}")
+                                    if (usuario.idUsuario == -1) {
+                                        // Es un error SQL devuelto por nuestro catch
+                                        android.widget.Toast.makeText(this@Login, "Error SQL: ${usuario.nombreUsuario}", android.widget.Toast.LENGTH_LONG).show()
+                                        Log.e("Login", "Error SQL: ${usuario.nombreUsuario}")
+                                    } else {
+                                        sessionManager.saveUserId(usuario.idUsuario)
+                                        Log.d("Login", "Usuario registrado en BD: id=${usuario.idUsuario}")
+                                        irAPantallaPrincipal()
+                                    }
                                 } else {
-                                    Log.e("Login", "Error registrando usuario en BD")
+                                    android.widget.Toast.makeText(this@Login, "No se pudo conectar a la base de datos (conn == null)", android.widget.Toast.LENGTH_LONG).show()
+                                    Log.e("Login", "Error registrando usuario: conexión nula")
                                 }
-                                irAPantallaPrincipal()
                             }
                         }.start()
                     } else {
