@@ -1,5 +1,6 @@
 package com.example.panchify.adapters
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.panchify.R
 import com.example.panchify.modelos.ArtistFull
+import com.example.panchify.vistas.ArtistDetail
 
 class TopArtistsAdapter(private val artists: List<ArtistFull>) :
     RecyclerView.Adapter<TopArtistsAdapter.ArtistViewHolder>() {
@@ -34,6 +36,14 @@ class TopArtistsAdapter(private val artists: List<ArtistFull>) :
             Glide.with(holder.itemView.context)
                 .load(artist.images[0].url)
                 .into(holder.imgAlbum)
+        }
+
+        holder.itemView.setOnClickListener {
+            val intent = Intent(holder.itemView.context, ArtistDetail::class.java).apply {
+                putExtra(ArtistDetail.EXTRA_ARTIST_ID, artist.id)
+                putExtra(ArtistDetail.EXTRA_ARTIST_NAME, artist.name)
+            }
+            holder.itemView.context.startActivity(intent)
         }
     }
 

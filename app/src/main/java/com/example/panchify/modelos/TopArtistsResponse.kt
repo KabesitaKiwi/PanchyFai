@@ -11,6 +11,8 @@ data class ArtistsResponse(
 data class ArtistFull(
     val id: String,
     val name: String,
-    val genres: List<String>,
-    val images: List<Image>
+    val genres: List<String> = emptyList(),
+    val images: List<Image> = emptyList(),
+    val popularity: Int = 0,
+    val external_urls: ExternalUrls? = null
 )

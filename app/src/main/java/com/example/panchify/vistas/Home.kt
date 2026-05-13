@@ -85,6 +85,9 @@ class Home : AppCompatActivity() {
                 R.id.nav_profile -> {
                     startActivity(Intent(this, Profile::class.java))
                 }
+                R.id.nav_playlists -> {
+                    startActivity(Intent(this, Playlists::class.java))
+                }
                 R.id.nav_privacy -> {
                     android.widget.Toast.makeText(this, "Política de Privacidad", android.widget.Toast.LENGTH_SHORT).show()
                 }
@@ -116,6 +119,7 @@ class Home : AppCompatActivity() {
        cargarTarjetasExplorar()
        configurarClicksTarjetas()
        cargarPerfilUsuario()
+       com.example.panchify.api.SpotifyPlaylistSyncManager.syncAll(this)
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 

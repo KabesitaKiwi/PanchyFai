@@ -13,6 +13,7 @@ import com.example.panchify.adapters.TopAlbumsAdapter
 import com.example.panchify.adapters.TopArtistsAdapter
 import com.example.panchify.adapters.TopTracksAdapter
 import com.example.panchify.api.RetrofitClient
+import com.example.panchify.db.ArtistaDao
 import com.example.panchify.modelos.TopArtistsResponse
 import com.example.panchify.modelos.TopTracksResponse
 import com.example.panchify.preferences.SessionManager
@@ -159,7 +160,11 @@ class Songs : AppCompatActivity() {
             override fun onResponse(call: Call<TopArtistsResponse>, response: Response<TopArtistsResponse>) {
                 mostrarCarga(false)
                 if (response.isSuccessful && response.body() != null) {
-                    listaCanciones.adapter = TopArtistsAdapter(response.body()!!.items)
+                    val artistas = response.body()!!.items
+                    listaCanciones.adapter = TopArtistsAdapter(artistas)
+                    Thread {
+                        ArtistaDao.guardarArtistas(artistas)
+                    }.start()
                 }
             }
             override fun onFailure(call: Call<TopArtistsResponse>, t: Throwable) {

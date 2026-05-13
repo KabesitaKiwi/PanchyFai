@@ -51,6 +51,12 @@
             android:name=".vistas.Profile"
             android:exported="false" />
         <activity
+            android:name=".vistas.Playlists"
+            android:exported="false" />
+        <activity
+            android:name=".vistas.ArtistDetail"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

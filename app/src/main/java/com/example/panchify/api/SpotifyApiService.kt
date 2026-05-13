@@ -7,6 +7,7 @@ import com.example.panchify.modelos.ArtistsResponse
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface SpotifyApiService {
@@ -60,4 +61,17 @@ interface SpotifyApiService {
         @Query("type") type: String = "track",
         @Query("limit") limit: Int = 20
     ): Call<com.example.panchify.modelos.SearchResponse>
+
+    @GET("v1/me/playlists")
+    fun getMyPlaylists(
+        @Header("Authorization") authHeader: String,
+        @Query("limit") limit: Int = 50
+    ): Call<com.example.panchify.modelos.SpotifyPlaylistsResponse>
+
+    @GET("v1/playlists/{playlistId}/tracks")
+    fun getPlaylistTracks(
+        @Header("Authorization") authHeader: String,
+        @Path("playlistId") playlistId: String,
+        @Query("limit") limit: Int = 100
+    ): Call<com.example.panchify.modelos.SpotifyPlaylistTracksResponse>
 }
