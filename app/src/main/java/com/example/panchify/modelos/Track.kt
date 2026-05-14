@@ -16,10 +16,11 @@ data class Artist(
     val name: String
 )
 
-data class Album(
+data class Album @JvmOverloads constructor(
     val name: String,
     val images: List<Image>,
-    val release_date: String? = null
+    val release_date: String? = null,
+    val id: String = ""
 )
 
 data class Image(

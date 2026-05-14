@@ -119,6 +119,45 @@ object AudioPlayer {
             })
     }
 
+    fun playAlbum(
+        token: String,
+        albumId: String,
+        onStart: () -> Unit,
+        onStop: () -> Unit,
+        onError: (Exception) -> Unit
+    ) {
+        val contextUri = "spotify:album:$albumId"
+
+        release()
+
+        if (currentPlayingContextUri == contextUri) {
+            SpotifyRemoteManager.pause()
+            currentPlayingId = null
+            currentPlayingContextUri = null
+            onStop()
+            return
+        }
+
+        val request = PlaybackContextRequest(context_uri = contextUri)
+
+        RetrofitClient.spotifyApiService.playInContext("Bearer $token", request)
+            .enqueue(object : Callback<Void> {
+                override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                    if (response.isSuccessful) {
+                        currentPlayingId = null
+                        currentPlayingContextUri = contextUri
+                        onStart()
+                    } else {
+                        onError(Exception("Spotify no pudo reproducir el album (${response.code()})"))
+                    }
+                }
+
+                override fun onFailure(call: Call<Void>, t: Throwable) {
+                    onError(Exception(t))
+                }
+            })
+    }
+
     fun release() {
         mediaPlayer?.release()
         mediaPlayer = null

@@ -2,7 +2,7 @@ package com.example.panchify.modelos
 
 data class PlaybackContextRequest(
     val context_uri: String,
-    val offset: PlaybackOffset,
+    val offset: PlaybackOffset? = null,
     val position_ms: Int = 0
 )
 

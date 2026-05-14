@@ -9,14 +9,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.panchify.R
 import com.example.panchify.modelos.Track
+import com.example.panchify.preferences.SessionManager
 
-// Extracts unique albums from tracks list
 class TopAlbumsAdapter(tracks: List<Track>) :
     RecyclerView.Adapter<TopAlbumsAdapter.AlbumViewHolder>() {
 
-    // Deduplicate albums by name, keep first occurrence
     private val albums: List<Track> = tracks
-        .distinctBy { it.album.name }
+        .distinctBy { it.album.id.ifBlank { it.album.name } }
         .take(20)
 
     class AlbumViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -42,22 +41,34 @@ class TopAlbumsAdapter(tracks: List<Track>) :
                 .into(holder.imgAlbum)
         }
 
-        // Listener para reproducir vista previa de la canción (el primer track del álbum)
-        holder.imgAlbum.setOnClickListener {
-            AudioPlayer.playOrPause(
-                trackId = track.id,
-                previewUrl = track.preview_url,
+        val playAlbumClick = View.OnClickListener {
+            val token = SessionManager(holder.itemView.context).getAccessToken()
+            if (token == null) {
+                android.widget.Toast.makeText(holder.itemView.context, "No se encontro la sesion de Spotify", android.widget.Toast.LENGTH_SHORT).show()
+                return@OnClickListener
+            }
+
+            if (track.album.id.isBlank()) {
+                android.widget.Toast.makeText(holder.itemView.context, "No se pudo encontrar el album en Spotify", android.widget.Toast.LENGTH_SHORT).show()
+                return@OnClickListener
+            }
+
+            AudioPlayer.playAlbum(
+                token = token,
+                albumId = track.album.id,
                 onStart = {
-                    android.widget.Toast.makeText(holder.itemView.context, "Reproduciendo canción...", android.widget.Toast.LENGTH_SHORT).show()
+                    android.widget.Toast.makeText(holder.itemView.context, "Reproduciendo album...", android.widget.Toast.LENGTH_SHORT).show()
                 },
                 onStop = {
-                    // Opcional
+                    // Sin cambio visual por ahora.
                 },
                 onError = {
-                    android.widget.Toast.makeText(holder.itemView.context, "No se pudo reproducir la canción", android.widget.Toast.LENGTH_SHORT).show()
+                    android.widget.Toast.makeText(holder.itemView.context, "No se pudo reproducir el album", android.widget.Toast.LENGTH_SHORT).show()
                 }
             )
         }
+        holder.imgAlbum.setOnClickListener(playAlbumClick)
+        holder.itemView.setOnClickListener(playAlbumClick)
     }
 
     override fun getItemCount(): Int = albums.size

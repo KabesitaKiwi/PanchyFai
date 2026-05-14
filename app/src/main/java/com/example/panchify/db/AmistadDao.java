@@ -70,7 +70,16 @@ public class AmistadDao {
         try {
             asegurarTabla(conn);
             if (idReceptor == idEmisor) return false;
-            if (existeRelacion(conn, idEmisor, idReceptor)) return false;
+            Integer idSolicitudRechazada = obtenerSolicitudRechazada(conn, idEmisor, idReceptor);
+            if (idSolicitudRechazada != null) {
+                String updateSql = "UPDATE SolicitudAmistad SET idEmisor = ?, idReceptor = ?, estado = 'pendiente', fechaSolicitud = CURRENT_TIMESTAMP WHERE idSolicitud = ?";
+                PreparedStatement updateStmt = conn.prepareStatement(updateSql);
+                updateStmt.setInt(1, idEmisor);
+                updateStmt.setInt(2, idReceptor);
+                updateStmt.setInt(3, idSolicitudRechazada);
+                return updateStmt.executeUpdate() > 0;
+            }
+            if (existeRelacionActiva(conn, idEmisor, idReceptor)) return false;
 
             String sql = "INSERT INTO SolicitudAmistad (idEmisor, idReceptor, estado) VALUES (?, ?, 'pendiente')";
             PreparedStatement stmt = conn.prepareStatement(sql);
@@ -97,12 +106,13 @@ public class AmistadDao {
         try {
             asegurarTabla(conn);
 
-            String sql = "SELECT u.* FROM Usuario u " +
-                    "WHERE u.idUsuario <> ? AND NOT EXISTS (" +
-                    "SELECT 1 FROM SolicitudAmistad s " +
+            String sql = "SELECT u.*, " +
+                    "(SELECT s.estado FROM SolicitudAmistad s " +
                     "WHERE (s.idEmisor = ? AND s.idReceptor = u.idUsuario) " +
-                    "OR (s.idEmisor = u.idUsuario AND s.idReceptor = ?)" +
-                    ") " +
+                    "OR (s.idEmisor = u.idUsuario AND s.idReceptor = ?) " +
+                    "ORDER BY s.idSolicitud DESC LIMIT 1) AS estadoRelacion " +
+                    "FROM Usuario u " +
+                    "WHERE u.idUsuario <> ? " +
                     "ORDER BY u.nombreUsuario ASC";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setInt(1, idUsuario);
@@ -118,7 +128,7 @@ public class AmistadDao {
                         rs.getString("nombreUsuario"),
                         rs.getString("email"),
                         rs.getString("fotoPerfil"),
-                        "disponible",
+                        rs.getString("estadoRelacion") == null ? "disponible" : rs.getString("estadoRelacion"),
                         FriendItemType.AMIGO
                 ));
             }
@@ -236,6 +246,34 @@ public class AmistadDao {
         stmt.setInt(4, idA);
         ResultSet rs = stmt.executeQuery();
         return rs.next();
+    }
+
+    private static boolean existeRelacionActiva(Connection conn, int idA, int idB) throws SQLException {
+        String sql = "SELECT idSolicitud FROM SolicitudAmistad " +
+                "WHERE ((idEmisor = ? AND idReceptor = ?) OR (idEmisor = ? AND idReceptor = ?)) " +
+                "AND estado IN ('pendiente', 'aceptada') " +
+                "LIMIT 1";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setInt(1, idA);
+        stmt.setInt(2, idB);
+        stmt.setInt(3, idB);
+        stmt.setInt(4, idA);
+        ResultSet rs = stmt.executeQuery();
+        return rs.next();
+    }
+
+    private static Integer obtenerSolicitudRechazada(Connection conn, int idA, int idB) throws SQLException {
+        String sql = "SELECT idSolicitud FROM SolicitudAmistad " +
+                "WHERE ((idEmisor = ? AND idReceptor = ?) OR (idEmisor = ? AND idReceptor = ?)) " +
+                "AND estado = 'rechazada' " +
+                "ORDER BY idSolicitud DESC LIMIT 1";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setInt(1, idA);
+        stmt.setInt(2, idB);
+        stmt.setInt(3, idB);
+        stmt.setInt(4, idA);
+        ResultSet rs = stmt.executeQuery();
+        return rs.next() ? rs.getInt("idSolicitud") : null;
     }
 
     private static void asegurarTabla(Connection conn) {

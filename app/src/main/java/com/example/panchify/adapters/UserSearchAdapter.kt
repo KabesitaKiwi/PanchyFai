@@ -30,7 +30,12 @@ class UserSearchAdapter(
     override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
         val user = users[position]
         holder.txtName.text = user.nombreUsuario ?: user.spotifyId ?: "Usuario"
-        holder.txtStatus.text = user.email ?: user.spotifyId ?: "Toca para invitar"
+        holder.txtStatus.text = when (user.estado) {
+            "aceptada" -> "Ya es tu amigo"
+            "pendiente" -> "Solicitud pendiente"
+            "rechazada" -> "Solicitud rechazada, puedes reenviarla"
+            else -> user.email ?: user.spotifyId ?: "Toca para invitar"
+        }
         holder.actions.visibility = View.GONE
         holder.itemView.setOnClickListener { onUserClick(user) }
 

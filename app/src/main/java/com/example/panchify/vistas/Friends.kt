@@ -208,6 +208,15 @@ class Friends : AppCompatActivity() {
     }
 
     private fun enviarSolicitud(usuario: FriendItem) {
+        if (usuario.estado == "aceptada" || usuario.estado == "pendiente") {
+            Toast.makeText(
+                this,
+                if (usuario.estado == "aceptada") "Ese usuario ya es tu amigo" else "Ya hay una solicitud pendiente",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
         val idUsuario = sessionManager.getUserId()
         if (idUsuario == null) {
             Toast.makeText(this, "No se encontro tu usuario", Toast.LENGTH_SHORT).show()
