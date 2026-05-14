@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.example.panchify.R
 import com.example.panchify.api.RetrofitClient
-import com.example.panchify.db.ArtistaDao
+import com.example.panchify.modelos.ArtistTopTracksResponse
 import com.example.panchify.modelos.ArtistsResponse
 import com.example.panchify.preferences.SessionManager
 import retrofit2.Call
@@ -77,6 +77,7 @@ class ArtistDetail : AppCompatActivity() {
                     txtName.text = artist.name
                     txtGenre.text = artist.genres.firstOrNull() ?: "Sin genero principal"
                     txtPopularity.text = "Popularidad: ${artist.popularity}/100"
+                    txtAppStats.text = "Top canciones en Spotify..."
 
                     artist.images.firstOrNull()?.url?.let { imageUrl ->
                         Glide.with(this@ArtistDetail)
@@ -86,16 +87,7 @@ class ArtistDetail : AppCompatActivity() {
                             .into(imgArtist)
                     }
 
-                    Thread {
-                        ArtistaDao.guardarArtistas(listOf(artist))
-                        val idUsuario = SessionManager(this@ArtistDetail).getUserId()
-                        if (idUsuario != null) {
-                            val stats = ArtistaDao.obtenerEstadisticasArtistaUsuario(artist.id, idUsuario)
-                            runOnUiThread {
-                                txtAppStats.text = "En Panchify: ${stats.cancionesEnTusPlaylists} canciones en ${stats.playlistsConEsteArtista} playlists tuyas"
-                            }
-                        }
-                    }.start()
+                    cargarTopCancionesSpotify(token, artist.id)
                 }
 
                 override fun onFailure(call: Call<ArtistsResponse>, t: Throwable) {
@@ -103,5 +95,40 @@ class ArtistDetail : AppCompatActivity() {
                     Toast.makeText(this@ArtistDetail, "Error cargando artista", Toast.LENGTH_SHORT).show()
                 }
             })
+    }
+
+    private fun cargarTopCancionesSpotify(token: String, artistId: String) {
+        RetrofitClient.spotifyApiService.getArtistTopTracks("Bearer $token", artistId)
+            .enqueue(object : Callback<ArtistTopTracksResponse> {
+                override fun onResponse(
+                    call: Call<ArtistTopTracksResponse>,
+                    response: Response<ArtistTopTracksResponse>
+                ) {
+                    if (!response.isSuccessful || response.body() == null) {
+                        txtAppStats.text = "No se pudieron cargar sus top canciones"
+                        return
+                    }
+
+                    txtAppStats.text = crearTextoTopCanciones(
+                        response.body()!!.tracks.take(3).map { it.name }
+                    )
+                }
+
+                override fun onFailure(call: Call<ArtistTopTracksResponse>, t: Throwable) {
+                    txtAppStats.text = "Error cargando top canciones"
+                }
+            })
+    }
+
+    private fun crearTextoTopCanciones(canciones: List<String>): String {
+        if (canciones.isEmpty()) {
+            return "Spotify no tiene top canciones disponibles para este artista"
+        }
+
+        val top = canciones.mapIndexed { index, titulo ->
+            "${index + 1}. $titulo"
+        }.joinToString("\n")
+
+        return "Top canciones en Spotify:\n$top"
     }
 }

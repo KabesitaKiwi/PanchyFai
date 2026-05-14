@@ -14,17 +14,14 @@ import com.example.panchify.R
 import com.example.panchify.adapters.PlaylistSongsAdapter
 import com.example.panchify.adapters.PlaylistsAdapter
 import com.example.panchify.api.RetrofitClient
+import com.example.panchify.api.SpotifyPlaylistSyncManager
 import com.example.panchify.db.ArtistaDao
 import com.example.panchify.db.PlaylistDao
 import com.example.panchify.modelos.CancionBD
 import com.example.panchify.modelos.SpotifyPlaylistSimple
 import com.example.panchify.modelos.SpotifyPlaylistTracksResponse
-import com.example.panchify.modelos.SpotifyPlaylistsResponse
 import com.example.panchify.preferences.SessionManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class Playlists : AppCompatActivity() {
 
@@ -78,34 +75,27 @@ class Playlists : AppCompatActivity() {
         txtTitle.text = "Playlists"
         mostrarCarga(true)
 
-        RetrofitClient.spotifyApiService.getMyPlaylists("Bearer $token")
-            .enqueue(object : Callback<SpotifyPlaylistsResponse> {
-                override fun onResponse(
-                    call: Call<SpotifyPlaylistsResponse>,
-                    response: Response<SpotifyPlaylistsResponse>
-                ) {
-                    mostrarCarga(false)
-                    if (!response.isSuccessful || response.body() == null) {
-                        txtEmpty.visibility = View.VISIBLE
-                        txtEmpty.text = "No se pudieron cargar tus playlists de Spotify"
-                        return
-                    }
+        Thread {
+            try {
+                val playlists = SpotifyPlaylistSyncManager.cargarTodasLasPlaylists(token, null)
+                sincronizarPlaylistsYContenidoEnBD(playlists, token)
 
-                    val playlists = response.body()!!.items
-                    sincronizarPlaylistsYContenidoEnBD(playlists, token)
+                runOnUiThread {
+                    mostrarCarga(false)
                     txtEmpty.visibility = if (playlists.isEmpty()) View.VISIBLE else View.GONE
                     txtEmpty.text = "No tienes playlists en Spotify"
                     recyclerPlaylists.adapter = PlaylistsAdapter(playlists) { playlist ->
                         cargarCanciones(playlist)
                     }
                 }
-
-                override fun onFailure(call: Call<SpotifyPlaylistsResponse>, t: Throwable) {
+            } catch (e: Exception) {
+                runOnUiThread {
                     mostrarCarga(false)
                     txtEmpty.visibility = View.VISIBLE
                     txtEmpty.text = "Error cargando playlists de Spotify"
                 }
-            })
+            }
+        }.start()
     }
 
     private fun cargarCanciones(playlist: SpotifyPlaylistSimple) {
@@ -119,35 +109,27 @@ class Playlists : AppCompatActivity() {
         txtTitle.text = playlist.name
         mostrarCarga(true)
 
-        RetrofitClient.spotifyApiService.getPlaylistTracks(
-            authHeader = "Bearer $token",
-            playlistId = playlist.id
-        ).enqueue(object : Callback<SpotifyPlaylistTracksResponse> {
-            override fun onResponse(
-                call: Call<SpotifyPlaylistTracksResponse>,
-                response: Response<SpotifyPlaylistTracksResponse>
-            ) {
-                mostrarCarga(false)
-                if (!response.isSuccessful || response.body() == null) {
-                    txtEmpty.visibility = View.VISIBLE
-                    txtEmpty.text = "No se pudieron cargar las canciones"
-                    return
+        Thread {
+            try {
+                val tracksResponse = SpotifyPlaylistSyncManager.cargarTodasLasCancionesPlaylist(token, playlist.id)
+                val canciones = convertirTracksSpotify(tracksResponse)
+
+                runOnUiThread {
+                    mostrarCarga(false)
+                    txtEmpty.visibility = if (canciones.isEmpty()) View.VISIBLE else View.GONE
+                    txtEmpty.text = "Esta playlist no tiene canciones"
+                    recyclerPlaylists.adapter = PlaylistSongsAdapter(canciones, playlist.id)
                 }
 
-                val canciones = convertirTracksSpotify(response.body()!!)
-
-                txtEmpty.visibility = if (canciones.isEmpty()) View.VISIBLE else View.GONE
-                txtEmpty.text = "Esta playlist no tiene canciones"
-                recyclerPlaylists.adapter = PlaylistSongsAdapter(canciones)
-                sincronizarPlaylistCompletaEnBD(playlist, canciones, response.body()!!, token)
+                sincronizarPlaylistCompletaEnBD(playlist, canciones, tracksResponse, token)
+            } catch (e: Exception) {
+                runOnUiThread {
+                    mostrarCarga(false)
+                    txtEmpty.visibility = View.VISIBLE
+                    txtEmpty.text = "Error cargando canciones"
+                }
             }
-
-            override fun onFailure(call: Call<SpotifyPlaylistTracksResponse>, t: Throwable) {
-                mostrarCarga(false)
-                txtEmpty.visibility = View.VISIBLE
-                txtEmpty.text = "Error cargando canciones"
-            }
-        })
+        }.start()
     }
 
     private fun sincronizarPlaylistsYContenidoEnBD(
@@ -166,19 +148,13 @@ class Playlists : AppCompatActivity() {
                 )
 
                 try {
-                    val response = RetrofitClient.spotifyApiService.getPlaylistTracks(
-                        authHeader = "Bearer $token",
-                        playlistId = playlist.id
-                    ).execute()
-
-                    if (response.isSuccessful && response.body() != null) {
-                        guardarPlaylistCancionesYArtistas(
-                            idUsuario = idUsuario,
-                            playlist = playlist,
-                            tracksResponse = response.body()!!,
-                            token = token
-                        )
-                    }
+                    val tracksResponse = SpotifyPlaylistSyncManager.cargarTodasLasCancionesPlaylist(token, playlist.id)
+                    guardarPlaylistCancionesYArtistas(
+                        idUsuario = idUsuario,
+                        playlist = playlist,
+                        tracksResponse = tracksResponse,
+                        token = token
+                    )
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }

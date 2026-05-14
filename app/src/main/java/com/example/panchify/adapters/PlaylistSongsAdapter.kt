@@ -10,8 +10,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.panchify.R
 import com.example.panchify.modelos.CancionBD
+import com.example.panchify.preferences.SessionManager
 
-class PlaylistSongsAdapter(private val canciones: List<CancionBD>) :
+class PlaylistSongsAdapter(
+    private val canciones: List<CancionBD>,
+    private val spotifyPlaylistId: String
+) :
     RecyclerView.Adapter<PlaylistSongsAdapter.CancionViewHolder>() {
 
     class CancionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -43,9 +47,16 @@ class PlaylistSongsAdapter(private val canciones: List<CancionBD>) :
         }
 
         holder.imgAlbum.setOnClickListener {
-            AudioPlayer.playOrPause(
+            val token = SessionManager(holder.itemView.context).getAccessToken()
+            if (token == null) {
+                Toast.makeText(holder.itemView.context, "No se encontro la sesion de Spotify", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            AudioPlayer.playPlaylistTrack(
+                token = token,
+                playlistId = spotifyPlaylistId,
                 trackId = cancion.idCancion,
-                previewUrl = cancion.previewUrl,
                 onStart = {
                     Toast.makeText(holder.itemView.context, "Reproduciendo desde playlist...", Toast.LENGTH_SHORT).show()
                 },

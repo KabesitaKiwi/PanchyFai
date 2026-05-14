@@ -5,6 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -21,7 +22,6 @@ import com.example.panchify.modelos.Track
 import com.example.panchify.modelos.ComentarioResponse
 import com.example.panchify.preferences.SessionManager
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.textfield.TextInputEditText
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -30,7 +30,7 @@ class Comments : AppCompatActivity() {
 
     private lateinit var recycler: RecyclerView
     private lateinit var adapter: ComentariosAdapter
-    private lateinit var campoComentario: TextInputEditText
+    private lateinit var campoComentario: EditText
     private lateinit var btnSend: MaterialButton
 
     private lateinit var searchView: SearchView
@@ -100,8 +100,9 @@ class Comments : AppCompatActivity() {
         }
 
         setupSearchView()
+        aplicarColoresBuscador()
 
-        cargarIconoPerfil()
+        this.cargarIconoPerfil()
         updateInputState()
         
         // Cargar todos los comentarios al inicio
@@ -144,6 +145,16 @@ class Comments : AppCompatActivity() {
                 return true
             }
         })
+    }
+
+    private fun aplicarColoresBuscador() {
+        val searchText = searchView.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
+        searchText?.setTextColor(android.graphics.Color.BLACK)
+        searchText?.setHintTextColor(android.graphics.Color.BLACK)
+        searchView.findViewById<ImageView>(androidx.appcompat.R.id.search_mag_icon)
+            ?.setColorFilter(android.graphics.Color.BLACK)
+        searchView.findViewById<ImageView>(androidx.appcompat.R.id.search_close_btn)
+            ?.setColorFilter(android.graphics.Color.BLACK)
     }
 
     private fun searchTracks(query: String) {

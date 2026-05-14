@@ -28,7 +28,7 @@ object SpotifyPlaylistSyncManager {
                     .getMyPlaylists("Bearer $token")
                     .execute()
 
-                val playlists = playlistsResponse.body()?.items.orEmpty()
+                val playlists = cargarTodasLasPlaylists(token, playlistsResponse.body())
                 playlists.forEach { playlist ->
                     PlaylistDao.guardarPlaylistSpotify(
                         playlist.id,
@@ -37,22 +37,17 @@ object SpotifyPlaylistSyncManager {
                         idUsuario
                     )
 
-                    val tracksResponse = RetrofitClient.spotifyApiService
-                        .getPlaylistTracks("Bearer $token", playlist.id)
-                        .execute()
-                        .body()
+                    val tracksResponse = cargarTodasLasCancionesPlaylist(token, playlist.id)
 
-                    if (tracksResponse != null) {
-                        val canciones = convertirTracksSpotify(tracksResponse)
-                        PlaylistDao.guardarCancionesPlaylistSpotify(
-                            idUsuario,
-                            playlist.id,
-                            playlist.name,
-                            playlist.description,
-                            canciones
-                        )
-                        guardarArtistasYRelaciones(tracksResponse, token)
-                    }
+                    val canciones = convertirTracksSpotify(tracksResponse)
+                    PlaylistDao.guardarCancionesPlaylistSpotify(
+                        idUsuario,
+                        playlist.id,
+                        playlist.name,
+                        playlist.description,
+                        canciones
+                    )
+                    guardarArtistasYRelaciones(tracksResponse, token)
                 }
             } catch (e: Exception) {
                 Log.e("PlaylistSync", "Error sincronizando playlists", e)
@@ -60,6 +55,65 @@ object SpotifyPlaylistSyncManager {
                 isSyncing = false
             }
         }.start()
+    }
+
+    fun cargarTodasLasCancionesPlaylist(token: String, playlistId: String): SpotifyPlaylistTracksResponse {
+        val allItems = mutableListOf<com.example.panchify.modelos.SpotifyPlaylistTrackItem>()
+        val limit = 100
+        var offset = 0
+        var total = Int.MAX_VALUE
+
+        while (offset < total) {
+            val response = RetrofitClient.spotifyApiService.getPlaylistTracks(
+                authHeader = "Bearer $token",
+                playlistId = playlistId,
+                limit = limit,
+                offset = offset
+            ).execute()
+
+            if (!response.isSuccessful || response.body() == null) break
+
+            val body = response.body()!!
+            allItems.addAll(body.items)
+            total = body.total.takeIf { it > 0 } ?: allItems.size
+            if (body.items.isEmpty()) break
+            offset += body.items.size
+        }
+
+        return SpotifyPlaylistTracksResponse(allItems, allItems.size)
+    }
+
+    fun cargarTodasLasPlaylists(
+        token: String,
+        firstPage: com.example.panchify.modelos.SpotifyPlaylistsResponse?
+    ): List<com.example.panchify.modelos.SpotifyPlaylistSimple> {
+        val limit = 50
+        val initialPage = firstPage ?: RetrofitClient.spotifyApiService.getMyPlaylists(
+            authHeader = "Bearer $token",
+            limit = limit,
+            offset = 0
+        ).execute().body()
+
+        val playlists = initialPage?.items.orEmpty().toMutableList()
+        var offset = playlists.size
+        val total = initialPage?.total?.takeIf { it > 0 } ?: playlists.size
+
+        while (offset < total) {
+            val response = RetrofitClient.spotifyApiService.getMyPlaylists(
+                authHeader = "Bearer $token",
+                limit = limit,
+                offset = offset
+            ).execute()
+
+            if (!response.isSuccessful || response.body() == null) break
+
+            val items = response.body()!!.items
+            if (items.isEmpty()) break
+            playlists.addAll(items)
+            offset += items.size
+        }
+
+        return playlists
     }
 
     fun syncTracks(tracksResponse: SpotifyPlaylistTracksResponse, token: String) {

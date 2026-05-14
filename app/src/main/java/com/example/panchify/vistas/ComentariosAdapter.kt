@@ -27,7 +27,6 @@ class ComentariosAdapter(private val lista: List<ComentarioResponse>) :
         val layoutSongRef: View = view.findViewById(R.id.layoutSongRef)
         val imgSongCover: ImageView = view.findViewById(R.id.imgSongCover)
         val txtSongRef: TextView = view.findViewById(R.id.txtSongRef)
-        val txtMusicEmoji: TextView = view.findViewById(R.id.txtMusicEmoji)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -42,14 +41,6 @@ class ComentariosAdapter(private val lista: List<ComentarioResponse>) :
         holder.txtUserName.text = comentario.nombreUsuario ?: "Usuario"
         holder.txtCommentText.text = comentario.texto
         holder.txtCommentTime.text = formatearFecha(comentario.fecha)
-
-        // Puntuación como emoji de estrellas
-        val puntuacion = comentario.puntuacion
-        if (puntuacion != null && puntuacion > 0) {
-            holder.txtMusicEmoji.text = "⭐".repeat(puntuacion.coerceAtMost(5))
-        } else {
-            holder.txtMusicEmoji.text = "🎵"
-        }
 
         // Contadores (por ahora estáticos, se pueden ampliar con tabla de reacciones)
         holder.txtLikeCount.text = "0"

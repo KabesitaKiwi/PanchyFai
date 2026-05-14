@@ -1,7 +1,8 @@
 package com.example.panchify.modelos
 
 data class SpotifyPlaylistsResponse(
-    val items: List<SpotifyPlaylistSimple>
+    val items: List<SpotifyPlaylistSimple>,
+    val total: Int = 0
 )
 
 data class SpotifyPlaylistSimple(
@@ -23,7 +24,8 @@ data class SpotifyPlaylistOwner(
 )
 
 data class SpotifyPlaylistTracksResponse(
-    val items: List<SpotifyPlaylistTrackItem>
+    val items: List<SpotifyPlaylistTrackItem>,
+    val total: Int = 0
 )
 
 data class SpotifyPlaylistTrackItem(

@@ -46,6 +46,10 @@ object SpotifyRemoteManager {
         appRemote?.playerApi?.play("spotify:track:$trackId")
     }
 
+    fun playPlaylist(playlistId: String) {
+        appRemote?.playerApi?.play("spotify:playlist:$playlistId")
+    }
+
     fun pause() {
         appRemote?.playerApi?.pause()
     }

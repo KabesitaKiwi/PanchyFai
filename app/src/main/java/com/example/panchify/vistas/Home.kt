@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.panchify.R
 import com.example.panchify.adapters.TopTracksAdapter
 import com.example.panchify.api.RetrofitClient
+import com.example.panchify.db.TopUsuarioDao
 import com.example.panchify.modelos.TopTracksResponse
 import com.example.panchify.modelos.TopArtistsResponse
 import com.example.panchify.modelos.Track
@@ -35,6 +36,10 @@ data class PlayHistoryItem(
     val played_at: String
 )
 class Home : AppCompatActivity() {
+
+    companion object {
+        const val EXTRA_OPEN_DRAWER = "open_drawer"
+    }
 
     private lateinit var recyclerTopTracks: RecyclerView
     private var mSpotifyAppRemote: SpotifyAppRemote? = null
@@ -120,6 +125,7 @@ class Home : AppCompatActivity() {
        configurarClicksTarjetas()
        cargarPerfilUsuario()
        com.example.panchify.api.SpotifyPlaylistSyncManager.syncAll(this)
+       abrirDrawerSiHaceFalta()
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
@@ -141,6 +147,12 @@ class Home : AppCompatActivity() {
             true
         }
 
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        abrirDrawerSiHaceFalta()
     }
 
     private fun configurarClicksTarjetas() {
@@ -175,6 +187,7 @@ class Home : AppCompatActivity() {
                 override fun onResponse(call: Call<TopTracksResponse>, response: Response<TopTracksResponse>) {
                     if (response.isSuccessful && response.body() != null) {
                         val items = response.body()!!.items
+                        guardarTopCancionesUsuario(items)
                         if (items.size > 0) cargarImagenSegura(items[0].album.images.firstOrNull()?.url, R.id.imgSong1)
                         if (items.size > 1) cargarImagenSegura(items[1].album.images.firstOrNull()?.url, R.id.imgSong2)
                         if (items.size > 2) cargarImagenSegura(items[2].album.images.firstOrNull()?.url, R.id.imgSong3)
@@ -264,6 +277,13 @@ class Home : AppCompatActivity() {
             val imgView = findViewById<android.widget.ImageView>(imageViewId)
             com.bumptech.glide.Glide.with(this).load(url).into(imgView)
         }
+    }
+
+    private fun guardarTopCancionesUsuario(tracks: List<Track>) {
+        val idUsuario = SessionManager(this).getUserId() ?: return
+        Thread {
+            TopUsuarioDao.guardarTopCanciones(idUsuario, tracks, "short_term")
+        }.start()
     }
 
     private fun cargarReproducidoUltimamente() {
@@ -356,6 +376,14 @@ class Home : AppCompatActivity() {
         bottomNavigationView.menu.findItem(R.id.nav_home)?.isChecked = true
         cargarEscuchandoAhora()
         cargarPerfilUsuario()
+        abrirDrawerSiHaceFalta()
+    }
+
+    private fun abrirDrawerSiHaceFalta() {
+        if (::drawerLayout.isInitialized && intent.getBooleanExtra(EXTRA_OPEN_DRAWER, false)) {
+            drawerLayout.openDrawer(androidx.core.view.GravityCompat.START)
+            intent.removeExtra(EXTRA_OPEN_DRAWER)
+        }
     }
 
     private fun cargarPerfilUsuario() {

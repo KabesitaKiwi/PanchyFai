@@ -48,6 +48,9 @@
             android:name=".vistas.Friends"
             android:exported="false" />
         <activity
+            android:name=".vistas.FriendDetail"
+            android:exported="false" />
+        <activity
             android:name=".vistas.Profile"
             android:exported="false" />
         <activity

@@ -16,6 +16,7 @@ object SpotifyConfig {
         "playlist-modify-private",
         "playlist-modify-public",
         "user-read-recently-played",
-        "user-read-currently-playing"
+        "user-read-currently-playing",
+        "user-modify-playback-state"
     )
 }
