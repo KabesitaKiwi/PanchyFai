@@ -8,7 +8,7 @@ object SpotifyConfig {
 
     const val REDIRECT_URI = "panchify://callback"
 
-    val SCOPES = arrayOf(
+       val SCOPES = arrayOf(
         "user-read-private",
         "user-read-email",
         "user-top-read",
@@ -17,6 +17,10 @@ object SpotifyConfig {
         "playlist-modify-public",
         "user-read-recently-played",
         "user-read-currently-playing",
-        "user-modify-playback-state"
+        "user-modify-playback-state",
+        "user-read-playback-state",
+        "app-remote-control",
+        "streaming"
     )
+
 }
